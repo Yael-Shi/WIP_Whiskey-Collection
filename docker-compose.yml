@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend # הנתיב לתיקיית ה-Dockerfile של ה-backend
+    container_name: whiskey_backend
+    ports:
+      - "8000:8000" # מאפינג פורט: <host_port>:<container_port>
+    volumes:
+      - ./backend/app:/app/app # מאפשר hot-reloading לקוד (אופציונלי לפיתוח)
+    #   - ./backend/.env:/app/.env # אם את משתמשת בקובץ .env
+    environment:
+      # - DATABASE_URL=postgresql://user:password@db_host:5432/whiskeydb # דוגמה
+      - SECRET_KEY=${SECRET_KEY} # מומלץ להגדיר ב-.env file בתיקיית השורש
+    # depends_on:
+    #   - db # אם יש לך קונטיינר של מסד נתונים
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend # הנתיב לתיקיית ה-Dockerfile של ה-frontend
+    container_name: whiskey_frontend
+    ports:
+      - "3000:80" # אפליקציית React תוגש על ידי Nginx בפורט 80, והוא ממופה ל-3000 במחשב שלך
+    volumes:
+      - ./frontend/src:/app/src # מאפשר hot-reloading לקוד (אופציונלי לפיתוח, ודורש התאמות ב-Vite/Nginx)
+    environment:
+      - VITE_API_URL=http://localhost:8000 # או http://backend:8000 אם הפרונט פונה דרך שם השירות
+    depends_on:
+      - backend # Frontend יחכה ל-Backend
+    restart: unless-stopped
+
+  # db: # דוגמה לקונטיינר של מסד נתונים PostgreSQL
+  #   image: postgres:15-alpine
+  #   container_name: whiskey_db
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
+  #   environment:
+  #     - POSTGRES_USER=youruser
+  #     - POSTGRES_PASSWORD=yourpassword
+  #     - POSTGRES_DB=whiskeydb
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+# volumes: # אם את משתמשת ב-volume למסד נתונים
+#   postgres_data:

@@ -1,5 +1,50 @@
+# General ignores for common OS files
+.DS_Store
+.vscode/
+!.vscode/extensions.json
+.vscode/*.code-snippets
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Python / Backend specific ignores ---
+# If you run `git rm -r --cached Backend/venv` (see below), it will work.
+Backend/venv/
+Backend/.venv/ # Just in case it's named .venv
+Backend/__pycache__/
+Backend/**/__pycache__/ # ignore __pycache__ in any sub-directory of Backend
+Backend/*.py[cod] # Compiled Python files
+
+# --- Node.js / React / Frontend specific ignores ---
+Frontend/node_modules/
+Frontend/dist/
+Frontend/dist-ssr/ # Vite specific for SSR build output
+Frontend/build/ # For Create React App or other build tools if used
+Frontend/.vite/ # Vite specific cache
+Frontend/.eslintcache
+Frontend/.jest/ # Optional Jest cache
+Frontend/.cache/ # General cache files
+
+# --- Environment files ---
 .env
-__pycache__/
-**/__pycache__/
-*.py[cod]
-venv/
+.env.*.local # Catches .env.local, .env.development.local, .env.test.local, .env.production.local
+
+# --- Logs and Diagnostic Reports ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.report/
+
+# --- Runtime Data and Package Manager Caches ---
+*.tgz
+.npm/
+.yarn-cache/
+.pnpm-store/
+.parcel-cache/
