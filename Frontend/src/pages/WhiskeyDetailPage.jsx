@@ -1,39 +1,24 @@
+// Frontend/src/pages/WhiskeyDetailPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
+import { useAuth } from '../contexts/AuthContext';
 
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-import WhiskeyForm from '../components/whiskey/WhiskeyForm';
-import TastingForm from '../components/tasting/TastingForm';
-import TastingList from '../components/tasting/TastingList';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// ייבוא אייקונים
-import {
-  ArrowLeft,
-  Edit3,
-  GlassWater,
-  Calendar,
-  DollarSign,
-  Percent,
-  MapPin,
-  Building2,
-  Wine,
-  Star,
-  Heart,
-  HeartOff,
-  Share2,
-  Trash2,
-  Eye
-} from 'lucide-react';
+import WhiskeyForm from '@/components/whiskey/WhiskeyForm';
+import TastingForm from '@/components/tasting/TastingForm';
+import TastingList from '@/components/tasting/TastingList';
 
-// --- דמה של פונקציות API - החלף בקריאות API אמיתיות ---
+import { ArrowLeft, Edit3, GlassWater, Calendar, DollarSign, Percent, MapPin, Building2, Wine, Star, Heart, HeartOff, Share2, Trash2, Eye } from 'lucide-react';
+
+// --- Mock API functions ---
 const fetchWhiskeyByIdApi = async (whiskeyId) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      // דמה של נתוני ויסקי מפורטים
       const mockWhiskeys = {
         'w1': {
           id: 'w1',
@@ -77,7 +62,7 @@ const fetchWhiskeyByIdApi = async (whiskeyId) => {
       if (whiskey) {
         resolve(whiskey);
       } else {
-        reject(new Error('ויסקי לא נמצא'));
+        reject(new Error('Whiskey not found'));
       }
     }, 500);
   });
@@ -156,7 +141,7 @@ const saveTastingToApi = async (tastingData) => {
     }, 900);
   });
 };
-// --- סוף דמה של פונקציות API ---
+// --- End mock API functions ---
 
 
 export default function WhiskeyDetailPage() {
@@ -170,12 +155,12 @@ export default function WhiskeyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Modal states
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showAddTastingModal, setShowAddTastingModal] = useState(false);
+  // Dialog states
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddTastingDialog, setShowAddTastingDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load whiskey and tastings data
+  // Load whiskey and tastings data on mount
   useEffect(() => {
     const loadWhiskeyData = async () => {
       setLoading(true);
@@ -189,7 +174,7 @@ export default function WhiskeyDetailPage() {
         setTastings(tastingsData);
       } catch (err) {
         console.error("Error loading whiskey data:", err);
-        setError(err.message || "שגיאה בטעינת פרטי הוויסקי.");
+        setError(err.message || "Error loading whiskey details.");
       } finally {
         setLoading(false);
       }
@@ -202,7 +187,7 @@ export default function WhiskeyDetailPage() {
 
   // Event handlers
   const handleEditWhiskey = () => {
-    setShowEditModal(true);
+    setShowEditDialog(true);
   };
 
   const handleSaveWhiskey = async (whiskeyData) => {
@@ -211,17 +196,17 @@ export default function WhiskeyDetailPage() {
     try {
       const updatedWhiskey = await updateWhiskeyApi(whiskeyId, whiskeyData);
       setWhiskey(updatedWhiskey);
-      setShowEditModal(false);
+      setShowEditDialog(false);
     } catch (err) {
       console.error("Error updating whiskey:", err);
-      setError(err.message || "שגיאה בעדכון הוויסקי.");
+      setError(err.message || "Error updating whiskey.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteWhiskey = async () => {
-    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את ${whiskey.name}? פעולה זו תמחק גם את כל הטעימות הקשורות אליו.`)) {
+    if (!window.confirm(`Are you sure you want to delete ${whiskey.name}? This will also delete all associated tastings.`)) {
       return;
     }
     try {
@@ -229,7 +214,7 @@ export default function WhiskeyDetailPage() {
       navigate('/collection');
     } catch (err) {
       console.error("Error deleting whiskey:", err);
-      alert(err.message || "שגיאה במחיקת הוויסקי.");
+      alert(err.message || "Error deleting whiskey.");
     }
   };
 
@@ -240,12 +225,12 @@ export default function WhiskeyDetailPage() {
       setWhiskey(prev => ({ ...prev, is_favorite: newFavoriteStatus }));
     } catch (err) {
       console.error("Error toggling favorite:", err);
-      alert("שגיאה בעדכון סטטוס מועדף.");
+      alert("Error updating favorite status.");
     }
   };
 
   const handleAddTasting = () => {
-    setShowAddTastingModal(true);
+    setShowAddTastingDialog(true);
   };
 
   const handleSaveTasting = async (tastingData) => {
@@ -253,11 +238,11 @@ export default function WhiskeyDetailPage() {
     setError('');
     try {
       const savedTasting = await saveTastingToApi({ ...tastingData, whiskey_id: whiskeyId });
-      setTastings(prev => [savedTasting, ...prev]); // הוסף בתחילת הרשימה
-      setShowAddTastingModal(false);
+      setTastings(prev => [savedTasting, ...prev]);
+      setShowAddTastingDialog(false);
     } catch (err) {
       console.error("Error saving tasting:", err);
-      setError(err.message || "שגיאה בשמירת הטעימה.");
+      setError(err.message || "Error saving tasting.");
     } finally {
       setIsSubmitting(false);
     }
@@ -272,7 +257,7 @@ export default function WhiskeyDetailPage() {
       try {
         await navigator.share({
           title: whiskey.name,
-          text: `בדוק את ${whiskey.name} מ${whiskey.distillery}`,
+          text: `Check out ${whiskey.name} from ${whiskey.distillery}`,
           url: window.location.href,
         });
       } catch (err) {
@@ -282,7 +267,7 @@ export default function WhiskeyDetailPage() {
       // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
-        alert('הקישור הועתק ללוח');
+        alert('Link copied to clipboard');
       } catch (err) {
         console.log('Copy failed:', err);
       }
@@ -292,7 +277,7 @@ export default function WhiskeyDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
-        <LoadingSpinner size="lg" message="טוען פרטי ויסקי..." />
+        <LoadingSpinner size="lg" message="Loading whiskey details..." />
       </div>
     );
   }
@@ -303,7 +288,7 @@ export default function WhiskeyDetailPage() {
         <div className="text-red-500 text-lg mb-4">{error}</div>
         <Button onClick={() => navigate('/collection')} variant="outline">
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
-          חזור לאוסף
+          Back to Collection
         </Button>
       </div>
     );
@@ -312,10 +297,10 @@ export default function WhiskeyDetailPage() {
   if (!whiskey) {
     return (
       <div className="text-center p-8" dir="rtl">
-        <div className="text-gray-500 text-lg mb-4">ויסקי לא נמצא</div>
+        <div className="text-gray-500 text-lg mb-4">Whiskey not found</div>
         <Button onClick={() => navigate('/collection')} variant="outline">
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
-          חזור לאוסף
+          Back to Collection
         </Button>
       </div>
     );
@@ -511,10 +496,10 @@ export default function WhiskeyDetailPage() {
             {tastings.length > 0 ? (
               <TastingList
                 tastings={tastings}
-                whiskeyMap={{ [whiskeyId]: whiskey.name }} // שלח רק את הוויסקי הנוכחי
+                whiskeyMap={{ [whiskeyId]: whiskey.name }}
                 loading={false}
                 onViewDetails={handleViewTastingDetails}
-                emptyStateMessage="עדיין לא תיעדת טעימות לויסקי זה."
+                emptyStateMessage="No tastings recorded for this whiskey yet."
               />
             ) : (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -529,40 +514,42 @@ export default function WhiskeyDetailPage() {
         </div>
       </div>
 
-      {/* Edit whiskey modal */}
-      {showEditModal && (
-        <Modal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          title={`עריכת ${whiskey.name}`}
-          size="2xl"
-        >
+      {/* Edit whiskey dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[700px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>עריכת {whiskey.name}</DialogTitle>
+            <DialogDescription>
+              Update whiskey details here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
           <WhiskeyForm
             initialWhiskey={whiskey}
             onSubmit={handleSaveWhiskey}
-            onCancel={() => setShowEditModal(false)}
+            onCancel={() => setShowEditDialog(false)}
             isSubmitting={isSubmitting}
           />
-        </Modal>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Add tasting modal */}
-      {showAddTastingModal && (
-        <Modal
-          isOpen={showAddTastingModal}
-          onClose={() => setShowAddTastingModal(false)}
-          title={`טעימה חדשה של ${whiskey.name}`}
-          size="2xl"
-        >
+      {/* Add tasting dialog */}
+      <Dialog open={showAddTastingDialog} onOpenChange={setShowAddTastingDialog}>
+        <DialogContent className="sm:max-w-[700px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>טעימה חדשה של {whiskey.name}</DialogTitle>
+            <DialogDescription>
+              Enter the tasting details for the whiskey.
+            </DialogDescription>
+          </DialogHeader>
           <TastingForm
-            whiskeys={[{ id: whiskey.id, name: whiskey.name }]} // שלח רק את הוויסקי הנוכחי
+            whiskeys={[{ id: whiskey.id, name: whiskey.name }]}
             preselectedWhiskeyId={whiskeyId}
             onSubmit={handleSaveTasting}
-            onCancel={() => setShowAddTastingModal(false)}
+            onCancel={() => setShowAddTastingDialog(false)}
             isSubmitting={isSubmitting}
           />
-        </Modal>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

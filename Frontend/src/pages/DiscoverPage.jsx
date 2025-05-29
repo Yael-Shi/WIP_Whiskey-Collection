@@ -1,35 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
+import { useAuth } from '../contexts/AuthContext'; // Ensure correct path
 
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select';
-import { Card } from '../components/ui/Card';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select'; // Assuming this is your custom Select component
+import { Card } from '@/components/ui/card'; // Card is imported but not used, consider removing if not needed later
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// ייבוא נתונים סטטיים
-import { regions, types } from '../components/utils/whiskeyData';
+import { regions, types } from '../components/utils/whiskeyData'; // Ensure correct path
 
-// ייבוא אייקונים
-import { 
-  Search, 
-  Compass, 
-  TrendingUp, 
-  Star, 
-  Filter,
-  X,
-  MapPin,
-  DollarSign,
-  Sparkles,
-  BookOpen,
-  Users,
-  Award,
-  Heart,
-  ExternalLink
-} from 'lucide-react';
+import { Search, Compass, TrendingUp, Star, Filter, X, MapPin, DollarSign, Sparkles, BookOpen, Users,
+  Award, Heart, ExternalLink } from 'lucide-react';
 
-// --- דמה של פונקציות API - החלף בקריאות API אמיתיות ---
+// --- Mock API Functions - Replace with actual API calls ---
 const getPersonalizedRecommendationsApi = async (userId, preferences = {}) => {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -94,7 +78,7 @@ const getPersonalizedRecommendationsApi = async (userId, preferences = {}) => {
 const searchWhiskeysApi = async (searchParams) => {
   return new Promise(resolve => {
     setTimeout(() => {
-      const mockResults = [
+      const allMockWhiskeys = [
         {
           id: 'search1',
           name: 'Oban 14 Year Old',
@@ -120,25 +104,93 @@ const searchWhiskeysApi = async (searchParams) => {
           image_url: 'https://via.placeholder.com/150/B8860B/FFFFFF?text=HP12',
           description: 'עשיר ומעושן עם מתיקות של דבש.',
           availability: 'מלאי מוגבל'
+        },
+        {
+          id: 'search3',
+          name: 'Laphroaig 10 Year Old',
+          distillery: 'Laphroaig',
+          region: 'סקוטלנד - איילה',
+          type: 'סינגל מאלט',
+          abv: 43.0,
+          estimated_price: 300,
+          rating: 4.5,
+          image_url: 'https://via.placeholder.com/150/5F9EA0/FFFFFF?text=Laphroaig',
+          description: 'ויסקי איילה קלאסי עם אופי כבול וים מובהקים.',
+          availability: 'זמין'
+        },
+        {
+          id: 'search4',
+          name: 'Jameson Irish Whiskey',
+          distillery: 'Jameson',
+          region: 'אירלנד',
+          type: 'בלנדד אירי',
+          abv: 40.0,
+          estimated_price: 100,
+          rating: 3.8,
+          image_url: 'https://via.placeholder.com/150/A52A2A/FFFFFF?text=Jameson',
+          description: 'ויסקי אירי חלק וקל לשתייה, עם נגיעות של פירות ווניל.',
+          availability: 'זמין'
+        },
+        {
+          id: 'search5',
+          name: 'Glenfiddich 15 Year Old',
+          distillery: 'Glenfiddich',
+          region: 'סקוטלנד - ספייסייד',
+          type: 'סינגל מאלט',
+          abv: 40.0,
+          estimated_price: 400,
+          rating: 4.3,
+          image_url: 'https://via.placeholder.com/150/2E8B57/FFFFFF?text=Glenfiddich',
+          description: 'ויסקי ספייסייד עשיר ומורכב, מיושן בשיטת סולרה ייחודית.',
+          availability: 'זמין'
+        },
+        {
+          id: 'search6',
+          name: 'Makers Mark',
+          distillery: 'Makers Mark',
+          region: 'ארה"ב - קנטאקי',
+          type: 'בורבון',
+          abv: 45.0,
+          estimated_price: 150,
+          rating: 4.1,
+          image_url: 'https://via.placeholder.com/150/B0C4DE/FFFFFF?text=MakersMark',
+          description: 'בורבון חיטה חלק עם טעמי וניל וקרמל עשירים.',
+          availability: 'זמין'
         }
       ];
       
-      // הדמיה של סינון לפי פרמטרי החיפוש
-      let filteredResults = mockResults;
+      // Filter logic based on search parameters
+      let filteredResults = allMockWhiskeys;
+
+      if (searchParams.query) {
+        const lowerCaseQuery = searchParams.query.toLowerCase();
+        filteredResults = filteredResults.filter(w =>
+          w.name.toLowerCase().includes(lowerCaseQuery) ||
+          w.distillery.toLowerCase().includes(lowerCaseQuery) ||
+          w.description.toLowerCase().includes(lowerCaseQuery)
+        );
+      }
+
       if (searchParams.region && searchParams.region !== 'all') {
         filteredResults = filteredResults.filter(w => w.region === searchParams.region);
       }
       if (searchParams.type && searchParams.type !== 'all') {
         filteredResults = filteredResults.filter(w => w.type === searchParams.type);
       }
+      if (searchParams.minPrice) {
+        filteredResults = filteredResults.filter(w => w.estimated_price >= parseInt(searchParams.minPrice));
+      }
       if (searchParams.maxPrice) {
         filteredResults = filteredResults.filter(w => w.estimated_price <= parseInt(searchParams.maxPrice));
+      }
+      if (searchParams.minRating) {
+        filteredResults = filteredResults.filter(w => w.rating >= parseFloat(searchParams.minRating));
       }
       
       resolve({
         results: filteredResults,
         totalFound: filteredResults.length,
-        searchTime: Math.random() * 0.5 + 0.1 // 0.1-0.6 שניות
+        searchTime: Math.random() * 0.5 + 0.1 // 0.1-0.6 seconds
       });
     }, 800);
   });
@@ -163,14 +215,14 @@ export default function DiscoverPage() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // מצבי העמוד
+  // Page states
   const [activeTab, setActiveTab] = useState('recommendations'); // 'recommendations', 'search', 'trending'
   
-  // המלצות מותאמות אישית
+  // Personalized recommendations
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   
-  // חיפוש מתקדם
+  // Advanced search
   const [searchParams, setSearchParams] = useState({
     query: '',
     region: 'all',
@@ -183,18 +235,18 @@ export default function DiscoverPage() {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   
-  // מגמות
+  // Trending
   const [trendingWhiskeys, setTrendingWhiskeys] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(false);
 
-  // טעינת המלצות מותאמות אישית בעת טעינת העמוד
+  // Load personalized recommendations on page load if authenticated
   useEffect(() => {
     if (isAuthenticated && activeTab === 'recommendations') {
       loadPersonalizedRecommendations();
     }
   }, [isAuthenticated, activeTab]);
 
-  // טעינת מגמות בעת מעבר לטאב מגמות
+  // Load trending whiskeys when switching to the trending tab
   useEffect(() => {
     if (activeTab === 'trending') {
       loadTrendingWhiskeys();
@@ -372,7 +424,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 space-y-8" dir="rtl">
-      {/* כותרת העמוד */}
+      {/* Page Header */}
       <header className="text-center pb-6 border-b dark:border-gray-700">
         <Compass className="w-16 h-16 mx-auto text-amber-500 dark:text-amber-400 mb-4" />
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">גלה ויסקי חדש</h1>
@@ -381,7 +433,7 @@ export default function DiscoverPage() {
         </p>
       </header>
 
-      {/* טאבים */}
+      {/* Tabs for Navigation */}
       <div className="flex flex-wrap justify-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
         <Button
           variant={activeTab === 'recommendations' ? 'default' : 'ghost'}
@@ -409,7 +461,7 @@ export default function DiscoverPage() {
         </Button>
       </div>
 
-      {/* תוכן הטאבים */}
+      {/* Tab Content */}
       {activeTab === 'recommendations' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -466,7 +518,7 @@ export default function DiscoverPage() {
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">חיפוש מתקדם</h2>
           
-          {/* טופס חיפוש */}
+          {/* Search Form */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               <div>
@@ -482,9 +534,10 @@ export default function DiscoverPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">אזור</label>
+                {/* Changed onChange to use e.target.value */}
                 <Select
                   value={searchParams.region}
-                  onChange={(value) => setSearchParams({...searchParams, region: value})}
+                  onChange={(e) => setSearchParams({...searchParams, region: e.target.value})}
                   className="dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="all">כל האזורים</option>
@@ -496,9 +549,10 @@ export default function DiscoverPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">סוג</label>
+                {/* Changed onChange to use e.target.value */}
                 <Select
                   value={searchParams.type}
-                  onChange={(value) => setSearchParams({...searchParams, type: value})}
+                  onChange={(e) => setSearchParams({...searchParams, type: e.target.value})}
                   className="dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="all">כל הסוגים</option>
@@ -518,12 +572,24 @@ export default function DiscoverPage() {
                   className="dark:bg-gray-700 dark:border-gray-600"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">מחיר מינימלי (₪)</label>
+                <Input
+                  type="number"
+                  placeholder="100"
+                  value={searchParams.minPrice}
+                  onChange={(e) => setSearchParams({...searchParams, minPrice: e.target.value})}
+                  className="dark:bg-gray-700 dark:border-gray-600"
+                />
+              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">דירוג מינימלי</label>
+                {/* Changed onChange to use e.target.value */}
                 <Select
                   value={searchParams.minRating}
-                  onChange={(value) => setSearchParams({...searchParams, minRating: value})}
+                  onChange={(e) => setSearchParams({...searchParams, minRating: e.target.value})}
                   className="dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="">כל הדירוגים</option>
@@ -546,7 +612,7 @@ export default function DiscoverPage() {
             </div>
           </div>
 
-          {/* תוצאות חיפוש */}
+          {/* Search Results */}
           {loadingSearch && (
             <div className="text-center py-8">
               <LoadingSpinner size="lg" message="מחפש ויסקי..." />
@@ -555,8 +621,9 @@ export default function DiscoverPage() {
 
           {searchPerformed && !loadingSearch && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
                 {searchResults.length === 0 ? 'לא נמצאו תוצאות' : `נמצאו ${searchResults.length} תוצאות`}
+                {searchResults.length > 0 && <span className="text-gray-500 dark:text-gray-400 text-sm ml-2 rtl:mr-2">({`זמן חיפוש: ${searchWhiskeysApi(searchParams).searchTime?.toFixed(2) || '0.00'} שנ'`})</span>}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {searchResults.map((whiskey) => (

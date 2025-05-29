@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'; // ודא שהנתיב נכון
 
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
-// ייבוא אייקונים (אופציונלי)
 import { UserPlus, Mail, Lock, AlertCircle, User, Wine } from 'lucide-react';
 
 // דמה של פונקציית הרשמה - החלף בקריאת API אמיתית

@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
 
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import Avatar from '../components/ui/Avatar'; // נניח שיש לך קומפוננטת Avatar
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar } from '@/components/ui/avatar'; 
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// ייבוא אייקונים
 import { UserCircle2, Mail, Edit3, Save, AlertCircle, Camera, CheckCircle, Shield } from 'lucide-react';
 
 // דמה של פונקציות API - החלף בקריאות API אמיתיות

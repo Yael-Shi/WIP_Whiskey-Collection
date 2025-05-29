@@ -1,64 +1,62 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import Layout from './components/common/Layout'; 
 
-// Import Pages
+import WrappedLayout from './components/common/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import CollectionPage from './pages/CollectionPage';
-// ... עוד דפים
+import TastingsPage from './pages/TastingsPage';
+import ProfilePage from './pages/ProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
+import DiscoverPage from './pages/DiscoverPage';
+import TastingDetailPage from './pages/TastingDetailPage';
+import WhiskeyDetailPage from './pages/WhiskeyDetailPage';
 
-import { AuthProvider } from './contexts/AuthContext'; // ייבוא ה-AuthProvider
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
 function App() {
-  return (
-    // תחילת שינוי: ה-Router עוטף את ה-AuthProvider
-    <Router>
-      <AuthProvider> {/* ה-AuthProvider עכשיו בתוך ה-Router */}
-        <Layout> 
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            {/* ... other public routes */}
+    const { isAuthenticated, loadingAuth } = useAuth();
 
-            {/* Protected Routes */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/collection" 
-              element={
-                <ProtectedRoute>
-                  <CollectionPage />
-                </ProtectedRoute>
-              } 
-            />
-            {/* דוגמה לנתיב עם הגבלת תפקיד */}
-            <Route 
-              path="/admin-only" 
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  {/* <AdminPage /> */}
-                  <div>דף לאדמינים בלבד</div>
-                </ProtectedRoute>
-              } 
-            />
-            {/* ... other protected routes */}
+    if (loadingAuth) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <LoadingSpinner size="lg" message="טוען אפליקציה..." /> {/* הצג ספינר מרכזי */}
+            </div>
+        );
+    }
 
-            {/* <Route path="*" element={<NotFoundPage />} /> */}
-          </Routes>
-        </Layout>
-      </AuthProvider> {/* סוף ה-AuthProvider */}
-    </Router> // סוף השינוי: ה-Router סוגר
-  );
+    return (
+        <div>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute isAuthenticated={isAuthenticated}>
+                            <WrappedLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="collection" element={<CollectionPage />} />
+                    <Route path="collection/:id" element={<WhiskeyDetailPage />} />
+                    <Route path="tastings" element={<TastingsPage />} />
+                    <Route path="tastings/:id" element={<TastingDetailPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                </Route>
+
+                <Route path="*" element={<NotFoundPage />} />
+                <Route path="discover" element={<DiscoverPage />} />
+            </Routes>
+        </div>
+    );
 }
 
 export default App;

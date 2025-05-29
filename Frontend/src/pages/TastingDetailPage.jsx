@@ -1,32 +1,18 @@
+// Frontend/src/pages/TastingDetailPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
+import { useAuth } from '../contexts/AuthContext';
 
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// ייבוא קומפוננטות טעימה וויסקי
-import TastingForm from '../components/tasting/TastingForm';
-// import { fetchWhiskeyByIdApi } from '../services/api'; // אם צריך לשלוף שם ויסקי
+import TastingForm from '@/components/tasting/TastingForm';
 
-// ייבוא אייקונים
-import {
-  ArrowLeft,
-  Edit3,
-  Star,
-  CalendarDays,
-  Palette,
-  MessageSquare,
-  FileText,
-  Tag,
-  Trash2,
-  Share2,
-  Eye,
-  Link2
-} from 'lucide-react';
+import { ArrowLeft, Edit3, Star, CalendarDays, Palette, MessageSquare, FileText, Tag, Trash2, Share2, Eye } from 'lucide-react';
 
-// --- דמה של פונקציות API - החלף בקריאות API אמיתיות ---
+// --- Mock API functions - replace with actual API calls ---
 const fetchTastingByIdApi = async (tastingId) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -34,7 +20,7 @@ const fetchTastingByIdApi = async (tastingId) => {
         't1': {
           id: 't1',
           whiskey_id: 'w1',
-          whiskeyName: 'Lagavulin 16 Year Old', // הוספתי שם ויסקי ישירות לדוגמה
+          whiskeyName: 'Lagavulin 16 Year Old', // Added whiskey name for example
           rating: 4.5,
           tasting_date: '2024-07-15',
           setting: 'ערב רגוע בבית, ליד האח',
@@ -51,7 +37,7 @@ const fetchTastingByIdApi = async (tastingId) => {
           created_at: '2024-07-15T20:00:00Z',
           updated_at: '2024-07-15T20:00:00Z'
         },
-        't2': { // טעימה נוספת לדוגמה
+        't2': { // Another example tasting
           id: 't2',
           whiskey_id: 'w2',
           whiskeyName: 'Glenfiddich 12 Year Old',
@@ -70,7 +56,7 @@ const fetchTastingByIdApi = async (tastingId) => {
       if (tasting) {
         resolve(tasting);
       } else {
-        reject(new Error('טעימה לא נמצאה'));
+        reject(new Error('Tasting not found'));
       }
     }, 500);
   });
@@ -95,7 +81,7 @@ const deleteTastingApi = async (tastingId) => {
   });
 };
 
-// פונקציה לשליפת כל הוויסקי מהאוסף (עבור הטופס עריכה)
+// Function to fetch all whiskeys from the collection (for the edit form dropdown)
 const fetchWhiskeysForDropdownApi = async () => {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -108,22 +94,25 @@ const fetchWhiskeysForDropdownApi = async () => {
     }, 300);
   });
 };
-// --- סוף דמה של פונקציות API ---
+// --- End mock API functions ---
 
 
 export default function TastingDetailPage() {
   const { tastingId } = useParams();
   const navigate = useNavigate();
-  // const { user } = useAuth(); // אם צריך לבדוק הרשאות ספציפיות
+  // const { user } = useAuth(); // For specific permissions check
 
+  // State variables for tasting data, whiskey list for form, loading, and error
   const [tasting, setTasting] = useState(null);
-  const [whiskeysForForm, setWhiskeysForForm] = useState([]); // לרשימת הוויסקי בטופס העריכה
+  const [whiskeysForForm, setWhiskeysForForm] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [showEditModal, setShowEditModal] = useState(false);
+  // State variables for dialog visibility and submission status
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Effect hook to load tasting data and whiskeys for the form
   useEffect(() => {
     const loadTastingData = async () => {
       setLoading(true);
@@ -131,14 +120,14 @@ export default function TastingDetailPage() {
       try {
         const tastingData = await fetchTastingByIdApi(tastingId);
         setTasting(tastingData);
-        
-        // טען רשימת ויסקי עבור טופס העריכה
+
+        // Load whiskey list for the edit form
         const whiskeysData = await fetchWhiskeysForDropdownApi();
         setWhiskeysForForm(whiskeysData);
 
       } catch (err) {
         console.error("Error loading tasting data:", err);
-        setError(err.message || "שגיאה בטעינת פרטי הטעימה.");
+        setError(err.message || "Error loading tasting details.");
       } finally {
         setLoading(false);
       }
@@ -149,61 +138,67 @@ export default function TastingDetailPage() {
     }
   }, [tastingId]);
 
+  // Handler to open the edit dialog
   const handleEditTasting = () => {
-    setShowEditModal(true);
+    setShowEditDialog(true);
   };
 
+  // Handler to save updated tasting data
   const handleSaveTasting = async (tastingData) => {
     setIsSubmitting(true);
     setError('');
     try {
       const updatedTasting = await updateTastingApi(tastingId, tastingData);
-      // עדכן את שם הוויסקי אם הוא השתנה בטופס
+      // Update whiskey name if changed in the form
       const selectedWhiskey = whiskeysForForm.find(w => w.id === updatedTasting.whiskey_id);
-      setTasting({ ...updatedTasting, whiskeyName: selectedWhiskey ? selectedWhiskey.name : 'ויסקי לא ידוע'});
-      setShowEditModal(false);
+      setTasting({ ...updatedTasting, whiskeyName: selectedWhiskey ? selectedWhiskey.name : 'Unknown Whiskey' });
+      setShowEditDialog(false);
     } catch (err) {
       console.error("Error updating tasting:", err);
-      setError(err.message || "שגיאה בעדכון הטעימה.");
+      setError(err.message || "Error updating tasting.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Handler to delete a tasting
   const handleDeleteTasting = async () => {
-    if (!window.confirm(`האם אתה בטוח שברצונך למחוק טעימה זו של ${tasting?.whiskeyName || 'הוויסקי'}?`)) {
+    if (!window.confirm(`Are you sure you want to delete this tasting of ${tasting?.whiskeyName || 'the whiskey'}?`)) {
       return;
     }
     try {
       await deleteTastingApi(tastingId);
-      navigate('/tastings'); // נתב חזרה לרשימת הטעימות
+      navigate('/tastings'); // Redirect to tastings list
     } catch (err) {
       console.error("Error deleting tasting:", err);
-      alert(err.message || "שגיאה במחיקת הטעימה.");
+      alert(err.message || "Error deleting tasting.");
     }
   };
 
+  // Handler to share tasting details
   const handleShare = async () => {
     if (navigator.share && tasting) {
       try {
         await navigator.share({
-          title: `טעימה של ${tasting.whiskeyName}`,
-          text: `בדוק את הטעימה שלי ל-${tasting.whiskeyName}, דירוג ${tasting.rating}/5!`,
+          title: `Tasting of ${tasting.whiskeyName}`,
+          text: `Check out my tasting of ${tasting.whiskeyName}, rating ${tasting.rating}/5!`,
           url: window.location.href,
         });
       } catch (err) {
         console.log('Sharing failed:', err);
       }
     } else {
+      // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
-        alert('הקישור הועתק ללוח');
+        alert('Link copied to clipboard');
       } catch (err) {
         console.log('Copy failed:', err);
       }
     }
   };
-  
+
+  // Helper function to render tasting notes sections
   const renderTastingNotesSection = (title, selectedNotes, manualNotes) => {
     if (!selectedNotes?.length && !manualNotes) return null;
     return (
@@ -225,33 +220,36 @@ export default function TastingDetailPage() {
     );
   };
 
+  // Render loading spinner
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
-        <LoadingSpinner size="lg" message="טוען פרטי טעימה..." />
+        <LoadingSpinner size="lg" message="Loading tasting details..." />
       </div>
     );
   }
 
+  // Render error message if tasting not found or error occurred
   if (error && !tasting) {
     return (
       <div className="text-center p-8" dir="rtl">
         <div className="text-red-500 text-lg mb-4">{error}</div>
         <Button onClick={() => navigate('/tastings')} variant="outline">
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
-          חזור ליומן הטעימות
+          Back to Tasting Log
         </Button>
       </div>
     );
   }
 
+  // Render "Tasting not found" if no tasting data
   if (!tasting) {
     return (
       <div className="text-center p-8" dir="rtl">
-        <div className="text-gray-500 text-lg mb-4">טעימה לא נמצאה</div>
+        <div className="text-gray-500 text-lg mb-4">Tasting not found</div>
         <Button onClick={() => navigate('/tastings')} variant="outline">
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
-          חזור ליומן הטעימות
+          Back to Tasting Log
         </Button>
       </div>
     );
@@ -259,15 +257,15 @@ export default function TastingDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6" dir="rtl">
-      {/* Header */}
+      {/* Header section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="self-start sm:self-center">
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
-          חזרה
+          Back
         </Button>
         <div className="text-center sm:text-right rtl:sm:text-left flex-grow">
           <h1 className="text-2xl sm:text-3xl font-bold text-sky-700 dark:text-sky-300">
-            טעימה של: <Link to={`/collection/${tasting.whiskey_id}`} className="hover:underline">{tasting.whiskeyName || 'ויסקי לא ידוע'}</Link>
+            Tasting of: <Link to={`/collection/${tasting.whiskey_id}`} className="hover:underline">{tasting.whiskeyName || 'Unknown Whiskey'}</Link>
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             <CalendarDays className="inline-block h-4 w-4 ml-1 rtl:mr-1 rtl:ml-0" />
@@ -278,7 +276,7 @@ export default function TastingDetailPage() {
         <div className="flex items-center gap-2 self-start sm:self-center">
             <Button onClick={handleShare} variant="ghost" size="icon" className="text-gray-500 hover:text-sky-600">
                 <Share2 className="h-5 w-5" />
-                <span className="sr-only">שתף</span>
+                <span className="sr-only">Share</span>
             </Button>
             {tasting.rating && (
                 <div className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 rounded-md">
@@ -289,6 +287,7 @@ export default function TastingDetailPage() {
         </div>
       </div>
 
+      {/* Error display */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-4 text-red-700 dark:text-red-300">
           {error}
@@ -303,7 +302,7 @@ export default function TastingDetailPage() {
             {tasting.image_url ? (
               <img
                 src={tasting.image_url}
-                alt={`טעימה של ${tasting.whiskeyName}`}
+                alt={`Tasting of ${tasting.whiskeyName}`}
                 className="w-full h-auto max-h-80 object-contain rounded-lg border dark:border-gray-700"
               />
             ) : (
@@ -314,19 +313,19 @@ export default function TastingDetailPage() {
              <div className="space-y-2">
                 <Button onClick={handleEditTasting} variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                   <Edit3 className="ml-2 rtl:mr-2 h-4 w-4" />
-                  ערוך טעימה
+                  Edit Tasting
                 </Button>
                 {tasting.whiskey_id &&
                     <Button asChild variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                         <Link to={`/collection/${tasting.whiskey_id}`}>
                             <Eye className="ml-2 rtl:mr-2 h-4 w-4" />
-                            צפה בוויסקי
+                            View Whiskey
                         </Link>
                     </Button>
                 }
                 <Button onClick={handleDeleteTasting} variant="destructive-outline" className="w-full">
                   <Trash2 className="ml-2 rtl:mr-2 h-4 w-4" />
-                  מחק טעימה
+                  Delete Tasting
                 </Button>
             </div>
           </div>
@@ -337,7 +336,7 @@ export default function TastingDetailPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   <Palette className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
-                  צבע
+                  Color
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">{tasting.color}</p>
               </div>
@@ -345,22 +344,22 @@ export default function TastingDetailPage() {
             {tasting.glassware && (
                 <div>
                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        <Tag className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" /> {/* סמל קצת שונה, לשקול אם מתאים */}
-                        סוג כוס
+                        <Tag className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
+                        Glassware
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">{tasting.glassware}</p>
                 </div>
             )}
 
-            {renderTastingNotesSection("אף (Nose)", tasting.nose_notes, tasting.nose_manual)}
-            {renderTastingNotesSection("חיך (Palate)", tasting.palate_notes, tasting.palate_manual)}
-            {renderTastingNotesSection("סיומת (Finish)", tasting.finish_notes, tasting.finish_manual)}
+            {renderTastingNotesSection("Nose", tasting.nose_notes, tasting.nose_manual)}
+            {renderTastingNotesSection("Palate", tasting.palate_notes, tasting.palate_manual)}
+            {renderTastingNotesSection("Finish", tasting.finish_notes, tasting.finish_manual)}
 
             {tasting.overall_impression && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   <MessageSquare className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
-                  התרשמות כללית
+                  Overall Impression
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
                   {tasting.overall_impression}
@@ -370,23 +369,25 @@ export default function TastingDetailPage() {
           </div>
         </div>
       </div>
-      
-      {showEditModal && (
-        <Modal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          title={`עריכת טעימה של ${tasting.whiskeyName}`}
-          size="2xl" // אפשר להתאים את גודל המודל לטופס הטעימות
-        >
+
+      {/* Edit tasting dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[700px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>Edit Tasting of {tasting.whiskeyName}</DialogTitle>
+            <DialogDescription>
+              Update tasting details here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
           <TastingForm
             initialTasting={tasting}
-            whiskeys={whiskeysForForm} // שלח את רשימת הוויסקי המלאה
+            whiskeys={whiskeysForForm}
             onSubmit={handleSaveTasting}
-            onCancel={() => setShowEditModal(false)}
+            onCancel={() => setShowEditDialog(false)}
             isLoadingExternal={isSubmitting}
           />
-        </Modal>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

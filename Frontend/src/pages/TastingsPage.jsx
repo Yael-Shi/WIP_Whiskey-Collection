@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
+import { useAuth } from '../contexts/AuthContext'; // Ensure correct path to AuthContext
 
-// ייבוא קומפוננטות UI
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select'; // נניח שזו קומפוננטה שלך
-import { Modal } from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, } from '@/components/ui/dialog';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-// ייבוא קומפוננטות טעימה וויסקי (לשמות ויסקי)
+// Import tasting and whiskey components
 import TastingList from '../components/tasting/TastingList';
 import TastingForm from '../components/tasting/TastingForm';
-// import { fetchWhiskeysForDropdown } from '../services/api'; // או פונקציה דומה
+// import { fetchWhiskeysForDropdown } from '../services/api'; // Or similar function for actual API calls
 
-// ייבוא אייקונים
+// Import icons from lucide-react
 import { PlusCircle, Search, Filter, X, SlidersHorizontal, Star, CalendarDays } from 'lucide-react';
 
-// --- דמה של פונקציות API - החלף בקריאות API אמיתיות ---
+// --- Mock API functions - Replace with your actual API calls ---
 const fetchWhiskeysForDropdownApi = async () => {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -26,7 +25,7 @@ const fetchWhiskeysForDropdownApi = async () => {
         { id: 'w2', name: 'Glenfiddich 12 Year Old' },
         { id: 'w3', name: 'Ardbeg Uigeadail' },
         { id: 'w4', name: 'Yamazaki 12 Year Old' },
-        // ...עוד ויסקי מהאוסף
+        // ...add more whiskeys from your collection
       ]);
     }, 300);
   });
@@ -38,37 +37,37 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
       const mockTastings = [
         {
           id: 't1',
-          whiskey_id: 'w1', // מקושר ל-Lagavulin
-          rating: 4.5, // יכול להיות 1-5 או 1-100, התאם לטופס
+          whiskey_id: 'w1', // Linked to Lagavulin
+          rating: 4.5, // Can be 1-5 or 1-100, adapt to your form
           tasting_date: '2024-07-15',
-          notes: 'מעושן מאוד, כבול, יוד, מתיקות קלה של פירות יבשים.',
-          color: 'ענבר עמוק',
-          nose_notes: ['כבול', 'עשן מדורה', 'מלח ים'],
-          palate_notes: ['שוקולד מריר', 'פלפל שחור', 'תאנים'],
-          finish_notes: ['ארוכה', 'חמימה', 'מעושנת'],
+          notes: 'Very smoky, peaty, iodine, slight sweetness of dried fruits.',
+          color: 'Deep amber',
+          nose_notes: ['Peat', 'Bonfire smoke', 'Sea salt'],
+          palate_notes: ['Dark chocolate', 'Black pepper', 'Figs'],
+          finish_notes: ['Long', 'Warm', 'Smoky'],
           image_url: 'https://via.placeholder.com/150/A0522D/FFFFFF?text=Tasting1'
         },
         {
           id: 't2',
-          whiskey_id: 'w2', // מקושר ל-Glenfiddich
+          whiskey_id: 'w2', // Linked to Glenfiddich
           rating: 3.8,
           tasting_date: '2024-06-20',
-          notes: 'פירותי, קליל, רמזים של אגס ותפוח. סיומת בינונית.',
-          color: 'זהב חיוור',
-          nose_notes: ['תפוח ירוק', 'אגס', 'פרחוני'],
-          palate_notes: ['דבש', 'וניל', 'אלון קלוי'],
-          finish_notes: ['בינונית', 'נקייה'],
+          notes: 'Fruity, light, hints of pear and apple. Medium finish.',
+          color: 'Pale gold',
+          nose_notes: ['Green apple', 'Pear', 'Floral'],
+          palate_notes: ['Honey', 'Vanilla', 'Light oak'],
+          finish_notes: ['Medium', 'Clean'],
         },
         {
           id: 't3',
-          whiskey_id: 'w4', // מקושר ל-Yamazaki
+          whiskey_id: 'w4', // Linked to Yamazaki
           rating: 5,
           tasting_date: '2024-05-01',
-          notes: 'מורכב מאוד, פירות טרופיים, תבלינים עדינים, אלון יפני (מיזונארה). פשוט מעולה.',
-          color: 'זהב עמוק',
-          nose_notes: ['אננס', 'קוקוס', 'קטורת'],
-          palate_notes: ['משמש', 'וניל', 'אגוז מוסקט', 'אלון מיזונארה'],
-          finish_notes: ['ארוכה מאוד', 'מתובלת', 'פירותית'],
+          notes: 'Very complex, tropical fruits, delicate spices, Japanese oak (Mizunara). Simply excellent.',
+          color: 'Deep gold',
+          nose_notes: ['Pineapple', 'Coconut', 'Incense'],
+          palate_notes: ['Apricot', 'Vanilla', 'Nutmeg', 'Mizunara oak'],
+          finish_notes: ['Very long', 'Spicy', 'Fruity'],
           image_url: 'https://via.placeholder.com/150/B8860B/FFFFFF?text=TastingYam'
         },
       ];
@@ -76,10 +75,10 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
       let filteredTastings = mockTastings;
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        // כאן נצטרך לקשר ל-whiskeyName אם הוא זמין, או לסנן רק לפי notes
+        // You'll need to link to whiskeyName here if it's available, or filter only by notes
         filteredTastings = filteredTastings.filter(t =>
           t.notes?.toLowerCase().includes(searchLower)
-          // או (whiskeyMap[t.whiskey_id]?.name.toLowerCase().includes(searchLower))
+          // Or (whiskeyMap[t.whiskey_id]?.name.toLowerCase().includes(searchLower))
         );
       }
       if (filters.whiskey_id && filters.whiskey_id !== 'all') {
@@ -92,9 +91,9 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
       filteredTastings.sort((a, b) => {
         switch (sortBy) {
           case 'tasting_date_desc':
-            return new Date(b.tasting_date) - new Date(a.tasting_date);
+            return new Date(b.tasting_date).getTime() - new Date(a.tasting_date).getTime();
           case 'tasting_date_asc':
-            return new Date(a.tasting_date) - new Date(b.tasting_date);
+            return new Date(a.tasting_date).getTime() - new Date(b.tasting_date).getTime();
           case 'rating_desc':
             return (b.rating || 0) - (a.rating || 0);
           case 'rating_asc':
@@ -140,7 +139,7 @@ const deleteTastingFromApi = async (tastingId) => {
     }, 450);
   });
 };
-// --- סוף דמה של פונקציות API ---
+// --- End of mock API functions ---
 
 
 export default function TastingsPage() {
@@ -148,28 +147,28 @@ export default function TastingsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // State variables
+  // State variables for data and loading
   const [tastings, setTastings] = useState([]);
-  const [whiskeysForFilter, setWhiskeysForFilter] = useState([]); // רשימת ויסקי לטופס ולפילטר
-  const [whiskeyMap, setWhiskeyMap] = useState({}); // מיפוי ID לשם ויסקי
+  const [whiskeysForFilter, setWhiskeysForFilter] = useState([]); // List of whiskeys for the form and filter dropdowns
+  const [whiskeyMap, setWhiskeyMap] = useState({}); // Map of whiskey IDs to names for easy lookup
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState(''); // חיפוש בהערות, שם ויסקי
+  // State variables for filters
+  const [searchTerm, setSearchTerm] = useState(''); // Search in tasting notes, whiskey name
   const [selectedWhiskeyFilter, setSelectedWhiskeyFilter] = useState('all');
-  const [minRatingFilter, setMinRatingFilter] = useState('all'); // 1-5 או 1-100
-  const [sortBy, setSortBy] = useState('tasting_date_desc');
-  const [showFilters, setShowFilters] = useState(false);
+  const [minRatingFilter, setMinRatingFilter] = useState('all'); // Filter by minimum rating (e.g., 1-5 or 1-100)
+  const [sortBy, setSortBy] = useState('tasting_date_desc'); // Sorting preference
+  const [showFilters, setShowFilters] = useState(false); // Toggle visibility of filter section
 
-  // Modal states
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingTasting, setEditingTasting] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [preselectedWhiskeyId, setPreselectedWhiskeyId] = useState(null);
+  // State variables for Dialog (formerly Modal)
+  const [showAddDialog, setShowAddDialog] = useState(false); // Controls visibility of the add/edit dialog
+  const [editingTasting, setEditingTasting] = useState(null); // Stores tasting data if editing an existing one
+  const [isSubmitting, setIsSubmitting] = useState(false); // Indicates if form is currently submitting
+  const [preselectedWhiskeyId, setPreselectedWhiskeyId] = useState(null); // Pre-selects a whiskey in the form, often from a URL param
 
 
-  // טען ויסקי עבור פילטרים וטפסים
+  // Effect to load whiskeys for filter and form dropdowns on component mount
   useEffect(() => {
     const loadWhiskeys = async () => {
       try {
@@ -180,13 +179,13 @@ export default function TastingsPage() {
         setWhiskeyMap(map);
       } catch (err) {
         console.error("Error fetching whiskeys for filter:", err);
-        setError("שגיאה בטעינת רשימת הוויסקי לפילטרים.");
+        setError("Error loading whiskey list for filters.");
       }
     };
     loadWhiskeys();
   }, []);
   
-  // טען טעימות מה-API
+  // Function to load tastings from the API based on current filters and sort order
   const loadTastings = async () => {
     setLoading(true);
     setError('');
@@ -200,20 +199,21 @@ export default function TastingsPage() {
       setTastings(result.tastings);
     } catch (err) {
       console.error("Error loading tastings:", err);
-      setError("שגיאה בטעינת יומן הטעימות.");
+      setError("Error loading tasting log.");
     } finally {
       setLoading(false);
     }
   };
 
-  // טען נתונים כאשר הפילטרים משתנים
+  // Effect to re-load tastings whenever filter or sort states change
   useEffect(() => {
-    if (Object.keys(whiskeyMap).length > 0 || whiskeysForFilter.length === 0) { // טען טעימות רק אחרי שיש מיפוי ויסקי או אם אין ויסקי כלל
+    // Only load tastings after the whiskey map is available, or if there are no whiskeys
+    if (Object.keys(whiskeyMap).length > 0 || whiskeysForFilter.length === 0) {
         loadTastings();
     }
   }, [searchTerm, selectedWhiskeyFilter, minRatingFilter, sortBy, whiskeyMap]);
 
-  // בדוק אם יש פרמטר URL לפתיחת המודל
+  // Effect to check URL parameters for opening the add tasting dialog
   useEffect(() => {
     const addParam = searchParams.get('add');
     const whiskeyIdParam = searchParams.get('whiskeyId');
@@ -221,47 +221,52 @@ export default function TastingsPage() {
       if (whiskeyIdParam) {
         setPreselectedWhiskeyId(whiskeyIdParam);
       }
-      setEditingTasting(null); // ודא שמדובר בהוספה
-      setShowAddModal(true);
+      setEditingTasting(null); // Ensure this is for adding a new tasting
+      setShowAddDialog(true);
     } else {
       setPreselectedWhiskeyId(null);
     }
   }, [searchParams]);
 
-  // פונקציות לטיפול באירועים
+  // Event handler to open the add new tasting dialog
   const handleAddTasting = () => {
-    setEditingTasting(null);
-    setPreselectedWhiskeyId(null);
-    setShowAddModal(true);
+    setEditingTasting(null); // Clear any existing tasting data
+    setPreselectedWhiskeyId(null); // Clear any pre-selected whiskey
+    setShowAddDialog(true);
+    // Update URL parameters to reflect the dialog state
     const newParams = new URLSearchParams(searchParams);
     newParams.set('add', 'true');
-    newParams.delete('whiskeyId'); // נקה אם היה
+    newParams.delete('whiskeyId'); // Remove whiskeyId if present
     setSearchParams(newParams);
   };
 
+  // Event handler to open the edit tasting dialog
   const handleEditTasting = (tasting) => {
-    setEditingTasting(tasting);
-    setPreselectedWhiskeyId(null);
-    setShowAddModal(true);
+    setEditingTasting(tasting); // Set the tasting data to be edited
+    setPreselectedWhiskeyId(null); // No pre-selection when editing
+    setShowAddDialog(true);
   };
 
+  // Event handler to delete a tasting
   const handleDeleteTasting = async (tastingId) => {
-    if (!window.confirm("האם אתה בטוח שברצונך למחוק טעימה זו?")) {
+    if (!window.confirm("Are you sure you want to delete this tasting?")) {
       return;
     }
     try {
       await deleteTastingFromApi(tastingId);
-      await loadTastings(); // רענן את הרשימה
+      await loadTastings(); // Refresh the tasting list after deletion
     } catch (err) {
       console.error("Error deleting tasting:", err);
-      alert(err.message || "שגיאה במחיקת הטעימה.");
+      alert(err.message || "Error deleting the tasting.");
     }
   };
   
+  // Event handler to navigate to tasting details page
   const handleViewTastingDetails = (tastingId) => {
     navigate(`/tastings/${tastingId}`);
   };
 
+  // Event handler to save (add or update) a tasting
   const handleSaveTasting = async (tastingData) => {
     setIsSubmitting(true);
     setError('');
@@ -271,33 +276,37 @@ export default function TastingsPage() {
       } else {
         await saveTastingToApi(tastingData);
       }
-      setShowAddModal(false);
-      setEditingTasting(null);
+      setShowAddDialog(false); // Close the dialog on successful save
+      setEditingTasting(null); // Clear editing state
+      // Clean up URL parameters after dialog closes
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('add');
       newParams.delete('whiskeyId');
       setSearchParams(newParams);
-      await loadTastings(); // רענן את הרשימה
+      await loadTastings(); // Refresh the tasting list after saving
     } catch (err) {
       console.error("Error saving tasting:", err);
-      setError(err.message || "שגיאה בשמירת הטעימה.");
-      // השאר את המודל פתוח כדי שהמשתמש יראה את השגיאה
+      setError(err.message || "Error saving the tasting.");
+      // Keep the dialog open for the user to see the error message
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setShowAddModal(false);
+  // Event handler to close the add/edit dialog
+  const handleCloseDialog = () => {
+    setShowAddDialog(false);
     setEditingTasting(null);
     setPreselectedWhiskeyId(null);
-    setError(''); // נקה שגיאות מהטופס
+    setError(''); // Clear any errors displayed in the form
+    // Clean up URL parameters
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('add');
     newParams.delete('whiskeyId');
     setSearchParams(newParams);
   };
   
+  // Function to clear all applied filters
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedWhiskeyFilter('all');
@@ -305,47 +314,49 @@ export default function TastingsPage() {
     setSortBy('tasting_date_desc');
   };
 
+  // Check if any filters are currently active
   const hasActiveFilters = searchTerm || selectedWhiskeyFilter !== 'all' || minRatingFilter !== 'all';
 
-  // שם ויסקי לפי ID (עבור TastingList)
+  // Helper function to get whiskey name by ID from the map
   const getWhiskeyNameById = (whiskeyId) => {
-    return whiskeyMap[whiskeyId] || 'ויסקי לא ידוע';
+    return whiskeyMap[whiskeyId] || 'Unknown Whiskey';
   };
 
-  if (loading && tastings.length === 0 && Object.keys(whiskeyMap).length === 0) { // הצג טעינה ראשונית
+  // Show a loading spinner if data is being fetched initially
+  if (loading && tastings.length === 0 && Object.keys(whiskeyMap).length === 0) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
-        <LoadingSpinner size="lg" message="טוען יומן טעימות..." />
+        <LoadingSpinner size="lg" message="Loading tasting log..." />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 p-4 md:p-6" dir="rtl">
-      {/* Header */}
+      {/* Page Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">
-            יומן הטעימות שלי
+            My Tasting Log
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {tastings.length} טעימות מתועדות
+            {tastings.length} documented tastings
           </p>
         </div>
         <Button onClick={handleAddTasting} className="bg-sky-600 hover:bg-sky-700 text-white">
           <PlusCircle className="ml-2 rtl:mr-2 h-5 w-5" />
-          הוסף טעימה
+          Add Tasting
         </Button>
       </header>
 
-      {/* Search and Filters */}
+      {/* Search and Filters Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="relative flex-1">
             <Search className="absolute right-3 rtl:left-3 rtl:right-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="חפש בהערות טעימה, שם ויסקי..."
+              placeholder="Search tasting notes, whiskey name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10 rtl:pl-10 rtl:pr-3 dark:bg-gray-700 dark:border-gray-600"
@@ -357,7 +368,7 @@ export default function TastingsPage() {
             className="dark:border-gray-600 dark:text-gray-300"
           >
             <SlidersHorizontal className="ml-2 rtl:mr-2 h-4 w-4" />
-            {showFilters ? 'הסתר פילטרים' : 'הצג פילטרים'}
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
           </Button>
         </div>
 
@@ -365,10 +376,10 @@ export default function TastingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t dark:border-gray-700">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                ויסקי ספציפי
+                Specific Whiskey
               </label>
               <Select value={selectedWhiskeyFilter} onChange={(e) => setSelectedWhiskeyFilter(e.target.value)}>
-                <option value="all">כל הוויסקי</option>
+                <option value="all">All Whiskeys</option>
                 {whiskeysForFilter.map(w => (
                   <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
@@ -376,24 +387,24 @@ export default function TastingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                דירוג מינימלי (1-5)
+                Minimum Rating (1-5)
               </label>
               <Select value={minRatingFilter} onChange={(e) => setMinRatingFilter(e.target.value)}>
-                <option value="all">כל הדירוגים</option>
+                <option value="all">All Ratings</option>
                 {[1, 2, 3, 3.5, 4, 4.5, 5].map(r => (
-                  <option key={r} value={r.toString()}>{r}+ כוכבים</option>
+                  <option key={r} value={r.toString()}>{r}+ stars</option>
                 ))}
               </Select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                מיון לפי
+                Sort by
               </label>
               <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="tasting_date_desc">תאריך (חדש לישן)</option>
-                <option value="tasting_date_asc">תאריך (ישן לחדש)</option>
-                <option value="rating_desc">דירוג (גבוה לנמוך)</option>
-                <option value="rating_asc">דירוג (נמוך לגבוה)</option>
+                <option value="tasting_date_desc">Date (Newest to Oldest)</option>
+                <option value="tasting_date_asc">Date (Oldest to Newest)</option>
+                <option value="rating_desc">Rating (High to Low)</option>
+                <option value="rating_asc">Rating (Low to High)</option>
               </Select>
             </div>
           </div>
@@ -401,53 +412,64 @@ export default function TastingsPage() {
 
         {hasActiveFilters && (
           <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700 mt-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">פילטרים פעילים</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Active Filters</span>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               <X className="ml-1 rtl:mr-1 h-4 w-4" />
-              נקה הכל
+              Clear All
             </Button>
           </div>
         )}
       </div>
 
+      {/* Error Display */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-4 text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
 
+      {/* Tasting List Component */}
       <TastingList
         tastings={tastings}
-        whiskeyMap={whiskeyMap} // שולחים את המיפוי במקום פונקציה
+        whiskeyMap={whiskeyMap} // Pass the map instead of a function for better performance
         loading={loading}
         onEdit={handleEditTasting}
         onDelete={handleDeleteTasting}
         onViewDetails={handleViewTastingDetails}
         emptyStateMessage={
           hasActiveFilters
-            ? "לא נמצאו טעימות התואמות לחיפוש. נסה לשנות את הפילטרים."
-            : "עדיין לא תיעדת טעימות. הוסף את החוויה הראשונה שלך!"
+            ? "No tastings found matching the search. Try changing the filters."
+            : "You haven't logged any tastings yet. Add your first experience!"
         }
-        pageNameForAdd="TastingsPage" // לצורך כפתור "הוסף" בתוך הקומפוננטה אם אין טעימות
+        pageNameForAdd="TastingsPage" // Used for an "Add" button within the component if no tastings are present
       />
 
-      {showAddModal && (
-        <Modal
-          isOpen={showAddModal}
-          onClose={handleCloseModal}
-          title={editingTasting ? `עריכת טעימה של ${getWhiskeyNameById(editingTasting.whiskey_id)}` : "הוספת טעימה חדשה"}
-          size="2xl" // או גודל אחר שמתאים לטופס טעימה
+      {/* Add/Edit Tasting Dialog */}
+      {showAddDialog && (
+        <Dialog // Main Dialog component
+          open={showAddDialog} // 'open' prop controls visibility
+          onOpenChange={setShowAddDialog} // Callback for when the open state changes (e.g., user clicks outside)
         >
-          <TastingForm
-            initialTasting={editingTasting}
-            whiskeys={whiskeysForFilter} // שלח את רשימת הוויסקי לטופס
-            preselectedWhiskeyId={preselectedWhiskeyId}
-            onSubmit={handleSaveTasting}
-            onCancel={handleCloseModal}
-            isSubmitting={isSubmitting}
-            // error={error} // אפשר להעביר שגיאה ספציפית לטופס אם יש
-          />
-        </Modal>
+          <DialogContent className="sm:max-w-[425px] md:max-w-[700px] lg:max-w-[900px]"> {/* Adjust max-width as needed */}
+            <DialogHeader>
+              <DialogTitle>
+                {editingTasting ? `Edit Tasting of ${getWhiskeyNameById(editingTasting.whiskey_id)}` : "Add New Tasting"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingTasting ? "Make changes to your tasting details here." : "Fill in the details for your new tasting entry."}
+              </DialogDescription>
+            </DialogHeader>
+            <TastingForm
+              initialTasting={editingTasting}
+              whiskeys={whiskeysForFilter} // Pass the list of whiskeys to the form
+              preselectedWhiskeyId={preselectedWhiskeyId}
+              onSubmit={handleSaveTasting}
+              onCancel={handleCloseDialog} // Function to close the dialog
+              isSubmitting={isSubmitting}
+              // error={error} // You can pass a specific error to the form if needed
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
