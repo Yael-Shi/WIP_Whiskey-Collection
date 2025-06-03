@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא שהנתיב נכון
+import { useAuth } from '../contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,32 +8,10 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 import { UserPlus, Mail, Lock, AlertCircle, User, Wine } from 'lucide-react';
 
-// דמה של פונקציית הרשמה - החלף בקריאת API אמיתית
-const registerUserApi = async (userData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // הדמיית בדיקה אם המייל כבר קיים
-      if (userData.email === "taken@example.com") {
-        reject(new Error("כתובת אימייל זו כבר רשומה במערכת."));
-        return;
-      }
-      // הדמיית הרשמה מוצלחת
-      const newUser = {
-        id: Math.random().toString(36).substring(7),
-        fullName: userData.fullName,
-        email: userData.email,
-        // כאן יכולים להיות עוד פרטים המוחזרים מהשרת
-      };
-      console.log("User registered (mock):", newUser);
-      resolve(newUser);
-    }, 1500);
-  });
-};
-
-
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, loadingAuth, login } = useAuth(); // אנו נשתמש ב-login כדי להכניס את המשתמש לאחר הרשמה מוצלחת
+  // Destructure 'register' function from useAuth()
+  const { isAuthenticated, loadingAuth, register } = useAuth(); 
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -43,8 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-
-  // אם המשתמש כבר מאומת, נתב אותו לדשבורד
+  // Redirect to dashboard if user is already authenticated
   useEffect(() => {
     if (!loadingAuth && isAuthenticated) {
       navigate('/dashboard', { replace: true });
@@ -57,6 +34,7 @@ export default function RegisterPage() {
     setSuccessMessage('');
     setIsSubmitting(true);
 
+    // Form validation
     if (!fullName || !email || !password || !confirmPassword) {
       setError('אנא מלא את כל השדות.');
       setIsSubmitting(false);
@@ -76,36 +54,25 @@ export default function RegisterPage() {
     }
     
     try {
-      // 1. קריאה ל-API להרשמת המשתמש
-      const registeredUserData = await registerUserApi({ fullName, email, password });
+      // Call the 'register' function from AuthContext, which now interacts with your backend API
+      const registeredUser = await register({ fullName, email, password });
       
-      // 2. (אופציונלי) אם ההרשמה הצליחה, הצג הודעת הצלחה
-      setSuccessMessage(`ההרשמה הצליחה! ברוך הבא, ${registeredUserData.fullName}. מעביר אותך להתחברות...`);
+      // Display success message
+      setSuccessMessage(`ההרשמה הצליחה! ברוך הבא, ${registeredUser.full_name || registeredUser.email}. מעביר אותך לדשבורד...`);
 
-      // 3. (אופציונלי) התחבר אוטומטית למשתמש החדש
-      //    או נתב אותו לדף ההתחברות כדי שיתחבר ידנית.
-      //    כאן נדגים התחברות אוטומטית (אם ה-API שלך לא מחזיר טוקן בהרשמה, תצטרך להשתמש בנתוני ההרשמה).
+      // The useEffect above will handle navigation to dashboard once isAuthenticated becomes true
+      // (which the 'register' function in AuthContext now takes care of after successful login).
       
-      // נחכה קצת כדי שהמשתמש יראה את הודעת ההצלחה
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // ננסה להתחבר עם הפרטים שהוזנו בהרשמה
-      // ב-AuthContext הדמה שלנו, זה אמור לעבוד.
-      // במערכת אמיתית, פונקציית login תקבל טוקן מהשרת.
-      await login({ email, password }); // login מה-AuthContext שלך
-      
-      // ה-useEffect למעלה כבר אמור לטפל בניווט לדשבורד לאחר ש-isAuthenticated יהפוך ל-true
-      // navigate('/dashboard'); // אפשר גם לנתב מכאן ישירות אם רוצים
-
     } catch (err) {
       console.error("Registration failed:", err);
+      // Display error message from the backend or a generic one
       setError(err.message || 'ההרשמה נכשלה. אנא נסה שוב.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // אם האימות עדיין בטעינה ואין אימות, הצג מחוון טעינה
+  // Show loading spinner if authentication state is being determined
   if (loadingAuth && !isAuthenticated) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
@@ -132,12 +99,12 @@ export default function RegisterPage() {
             </div>
           )}
           {successMessage && (
-             <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 rounded-md text-sm text-green-700 dark:text-green-300">
+              <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 rounded-md text-sm text-green-700 dark:text-green-300">
                 {successMessage}
             </div>
           )}
 
-          {!successMessage && ( // הצג את הטופס רק אם אין הודעת הצלחה
+          {!successMessage && ( // Show the form only if there's no success message
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label
@@ -146,7 +113,7 @@ export default function RegisterPage() {
                 >
                   שם מלא
                 </label>
-                 <div className="relative">
+                  <div className="relative">
                     <User className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input
                     type="text"
@@ -159,7 +126,7 @@ export default function RegisterPage() {
                     placeholder="השם שלך"
                     disabled={isSubmitting}
                     />
-                </div>
+                  </div>
               </div>
 
               <div>
@@ -182,7 +149,7 @@ export default function RegisterPage() {
                     placeholder="your@email.com"
                     disabled={isSubmitting}
                     />
-                </div>
+                  </div>
               </div>
 
               <div>
@@ -192,7 +159,7 @@ export default function RegisterPage() {
                 >
                   סיסמה
                 </label>
-                 <div className="relative">
+                  <div className="relative">
                     <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input
                     type="password"
@@ -205,7 +172,7 @@ export default function RegisterPage() {
                     placeholder="לפחות 6 תווים"
                     disabled={isSubmitting}
                     />
-                </div>
+                  </div>
               </div>
 
               <div>
@@ -215,7 +182,7 @@ export default function RegisterPage() {
                 >
                   אימות סיסמה
                 </label>
-                 <div className="relative">
+                  <div className="relative">
                     <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input
                     type="password"
@@ -228,7 +195,7 @@ export default function RegisterPage() {
                     placeholder="הקלד שוב את הסיסמה"
                     disabled={isSubmitting}
                     />
-                </div>
+                  </div>
               </div>
 
               <div className="pt-2">
@@ -260,17 +227,17 @@ export default function RegisterPage() {
               </Link>
             </p>
           )}
-           {successMessage && (
-             <div className="mt-6 text-center">
+            {successMessage && (
+              <div className="mt-6 text-center">
                 <Link to="/login">
                     <Button variant="outline" className="dark:border-gray-600 dark:text-gray-300">
                         עבור לדף התחברות
                     </Button>
                 </Link>
-             </div>
-           )}
+              </div>
+            )}
         </div>
-         <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
             על ידי יצירת חשבון, אתה מסכים ל<Link to="/terms" className="underline hover:text-amber-600">תנאי השימוש</Link> ול<Link to="/privacy" className="underline hover:text-amber-600">מדיניות הפרטיות</Link> שלנו.
         </p>
       </div>

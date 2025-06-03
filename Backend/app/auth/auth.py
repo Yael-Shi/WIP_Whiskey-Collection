@@ -5,10 +5,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+
 
 from app.db.database import get_db
-from app.models.user import User
+from app.models.user import User as UserModel # Renamed to avoid conflict with User in schemas
 from app.schemas.user_schema import TokenData
 
 # Security constants
@@ -20,7 +20,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 scheme setup
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 def verify_password(plain_password, hashed_password):
@@ -67,14 +67,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     
     # Find the user in the database
-    user = db.query(User).filter(User.email == token_data.email).first()
+    user = db.query(UserModel).filter(UserModel.email == token_data.email).first()
     if user is None:
         raise credentials_exception
     
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(current_user: UserModel = Depends(get_current_user)):
     """Ensure the user is active"""
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")

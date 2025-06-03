@@ -2,9 +2,8 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.models.user import User as UserModel
-from app.schemas.user_schema import UserCreate as UserCreateSchema
-from app.schemas.user_schema import UserUpdate as UserUpdateSchema #todo - can I put this and the above on one line?
-from app.auth.auth import get_password_hash # Import password hashing utility
+from app.schemas.user_schema import UserCreate as UserCreateSchema, UserUpdate as UserUpdateSchema
+from app.auth.auth import get_password_hash, verify_password
 
 def get_user(db: Session, user_id: int):
     """
@@ -34,14 +33,26 @@ def create_user(db: Session, user: UserCreateSchema):
         email=user.email,
         full_name=user.full_name,
         hashed_password=hashed_password,
-        is_active=user.is_active # if is_active is part of UserCreateSchema
+        is_active=True
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -> Optional[UserModel]: #todo
+def authenticate_user(db: Session, email: str, password: str):
+    """
+    Authenticates a user by email and password.
+    Returns the user object if credentials are valid, False otherwise.
+    """
+    user = get_user_by_email(db, email)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -> Optional[UserModel]:
     db_user = get_user(db, user_id=user_id)
     if not db_user:
         return None
@@ -51,7 +62,7 @@ def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -
     if "password" in update_data and update_data["password"]:
         hashed_password = get_password_hash(update_data["password"])
         db_user.hashed_password = hashed_password
-        del update_data["password"]  # Don't try to set plain password directly
+        del update_data["password"]
 
     for key, value in update_data.items():
         setattr(db_user, key, value)

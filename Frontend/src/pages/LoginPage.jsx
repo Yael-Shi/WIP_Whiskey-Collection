@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא שהנתיב נכון
+import { useAuth } from '../contexts/AuthContext';
 
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 import { LogIn, Mail, Lock, AlertCircle, Wine } from 'lucide-react';
 
@@ -138,7 +138,7 @@ export default function LoginPage() {
           <div className="mt-6 text-sm text-center text-gray-600 dark:text-gray-400">
             אין לך חשבון?{' '}
             <Link
-              to="/signup"
+              to="/register"
               className="text-amber-600 dark:text-amber-400 hover:underline"
             >
               הרשם עכשיו
