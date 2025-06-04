@@ -1,0 +1,50 @@
+name: Python Code Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'Backend/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'Backend/**'
+
+jobs:
+  lint_and_format:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort mypy
+      working-directory: Backend
+
+    - name: Run Black (Formatter)
+      run: black --check .
+      working-directory: Backend
+
+    - name: Run isort (Import Sorter)
+      run: isort --check-only .
+      working-directory: Backend
+
+    - name: Run Flake8 (Linter & PEP 8)
+      run: flake8 .
+      working-directory: Backend
+
+    - name: Run MyPy (Static Type Checker)
+      run: mypy .
+      working-directory: Backend
