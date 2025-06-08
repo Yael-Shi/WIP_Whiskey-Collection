@@ -1,13 +1,19 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func # For default created_date
+from sqlalchemy.sql import func  # For default created_date
 
-from app.db.database import Base # Import Base from your database setup
+from app.db.database import Base  # Import Base from your database setup
+
 
 class User(Base):
     """
     SQLAlchemy model for the User.
     """
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -15,7 +21,7 @@ class User(Base):
     full_name = Column(String, index=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False) # Optional: if you need admin roles
+    is_superuser = Column(Boolean, default=False)  # Optional: if you need admin roles
 
     created_date = Column(DateTime(timezone=True), server_default=func.now())
     updated_date = Column(DateTime(timezone=True), onupdate=func.now())

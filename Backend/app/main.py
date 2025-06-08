@@ -1,13 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Database models for creating tables
-from app.models import user, whiskey, tasting, distillery
 # Database engine for table creation
 from app.db.database import engine
 
+# Database models for creating tables
+from app.models import distillery
+from app.models import tasting
+from app.models import user
+from app.models import whiskey
+
 # Import API routers to include their endpoints in the application
-from app.routers import auth, whiskeys, tastings, users, distilleries
+from app.routers import auth
+from app.routers import distilleries
+from app.routers import tastings
+from app.routers import users
+from app.routers import whiskeys
 
 # Create database tables (SQLAlchemy Base.metadata.create_all)
 user.Base.metadata.create_all(bind=engine)
@@ -19,7 +27,7 @@ distillery.Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Whiskey Collection API",
     description="API for managing a whiskey collection and tastings",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Configure CORS (Cross-Origin Resource Sharing) middleware
@@ -46,11 +54,17 @@ app.include_router(whiskeys.router, prefix="/api", tags=["Whiskeys"])
 app.include_router(tastings.router, prefix="/api", tags=["Tastings"])
 app.include_router(distilleries.router, prefix="/api", tags=["Distilleries"])
 
+
 # Define a root endpoint for a basic welcome message or API status
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Whiskey Collection API! Visit /docs for API documentation."}
+    return {
+        "message": "Welcome to Whiskey Collection API!"
+        "Visit /docs for API documentation."
+    }
+
 
 # All specific API endpoints (like /auth/register, /auth/token, /api/whiskeys, etc.)
-# are defined within their respective router files (e.g., app/routers/auth.py, app/routers/whiskeys.py)
+# are defined within their respective router files
+# (e.g., app/routers/auth.py, app/routers/whiskeys.py)
 # and are implicitly added to the application via the app.include_router calls above.

@@ -1,9 +1,19 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Date, Text
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 from datetime import datetime
 
+# from sqlalchemy import Float
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Date
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy.orm import relationship
+
 from app.db.database import Base
+
+# from sqlalchemy.sql import func
+
 
 class Tasting(Base):
     __tablename__ = "tastings"
@@ -20,10 +30,10 @@ class Tasting(Base):
     personal_notes = Column(Text, nullable=True)
     shared = Column(Boolean, default=False)
     setting = Column(String, nullable=True)
-    
+
     created_date = Column(Date, default=datetime.now)
     updated_date = Column(Date, default=datetime.now, onupdate=datetime.now)
-    
+
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="tastings")
     whiskey = relationship("Whiskey", back_populates="tastings")

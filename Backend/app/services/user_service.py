@@ -1,9 +1,13 @@
-from sqlalchemy.orm import Session
 from typing import Optional
 
+from sqlalchemy.orm import Session
+
+from app.auth.auth import get_password_hash
+from app.auth.auth import verify_password
 from app.models.user import User as UserModel
-from app.schemas.user_schema import UserCreate as UserCreateSchema, UserUpdate as UserUpdateSchema
-from app.auth.auth import get_password_hash, verify_password
+from app.schemas.user_schema import UserCreate as UserCreateSchema
+from app.schemas.user_schema import UserUpdate as UserUpdateSchema
+
 
 def get_user(db: Session, user_id: int):
     """
@@ -11,17 +15,20 @@ def get_user(db: Session, user_id: int):
     """
     return db.query(UserModel).filter(UserModel.id == user_id).first()
 
+
 def get_user_by_email(db: Session, email: str):
     """
     Retrieve a single user by their email.
     """
     return db.query(UserModel).filter(UserModel.email == email).first()
 
+
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     """
     Retrieve a list of users with pagination.
     """
     return db.query(UserModel).offset(skip).limit(limit).all()
+
 
 def create_user(db: Session, user: UserCreateSchema):
     """
@@ -33,12 +40,13 @@ def create_user(db: Session, user: UserCreateSchema):
         email=user.email,
         full_name=user.full_name,
         hashed_password=hashed_password,
-        is_active=True
+        is_active=True,
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def authenticate_user(db: Session, email: str, password: str):
     """
@@ -52,7 +60,10 @@ def authenticate_user(db: Session, email: str, password: str):
         return False
     return user
 
-def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -> Optional[UserModel]:
+
+def update_user(
+    db: Session, user_id: int, user_update_data: UserUpdateSchema
+) -> Optional[UserModel]:
     db_user = get_user(db, user_id=user_id)
     if not db_user:
         return None
