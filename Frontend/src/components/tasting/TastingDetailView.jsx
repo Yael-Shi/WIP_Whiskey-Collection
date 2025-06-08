@@ -293,7 +293,6 @@ const TastingDetailView = () => {
                 className="flex items-center gap-1.5 text-yellow-500 dark:text-yellow-400 self-start sm:self-center mt-2 sm:mt-0"
                 title={`דירוג: ${tasting.rating}/5`}
               >
-                {/* eslint-disable-next-line react/no-array-index-key */}
                 {[...Array(5)].map((_, i) => {
                   let starClassName = 'stroke-current opacity-40';
                   if (i < Math.floor(tasting.rating)) {

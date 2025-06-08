@@ -177,8 +177,7 @@ const UserDropdown = ({ user, onLogout }) => {
             className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
             type="button"
           >
-            <LogOut className="h-4 w-4 ml-3 rtl:mr-3 rtl:ml-0" />{' '}
-            התנתקות
+            <LogOut className="h-4 w-4 ml-3 rtl:mr-3 rtl:ml-0" /> התנתקות
           </button>
         </div>
       )}
@@ -240,7 +239,7 @@ const Navbar = () => {
       className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40"
       dir="rtl"
     >
-      {' '}
+      {/* Prettier wants a newline here */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link
@@ -255,7 +254,7 @@ const Navbar = () => {
 
           {isAuthenticated && (
             <nav className="flex items-center space-x-1 rtl:space-x-reverse ml-4 rtl:mr-4">
-              {' '}
+              {/* Prettier wants a newline here */}
               {commonNavLinks.map((link) => (
                 <NavLink
                   key={link.to}
@@ -268,7 +267,7 @@ const Navbar = () => {
           )}
 
           <div className="flex items-center space-x-2 rtl:space-x-reverse mr-4 rtl:ml-4">
-            {' '}
+            {/* Prettier wants a newline here */}
             <ThemeToggle />
             {isAuthenticated && user ? (
               <UserDropdown user={user} onLogout={handleLogout} />

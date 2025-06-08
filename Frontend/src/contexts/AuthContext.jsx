@@ -1,6 +1,12 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, registerUser, fetchCurrentUser } from '../services/api'; // Import API functions
+import { loginUser, registerUser, fetchCurrentUser } from '../services/api';
 
 // Create the Auth Context
 const AuthContext = createContext(null);
@@ -67,13 +73,13 @@ export const AuthProvider = ({ children }) => {
     try {
       // Call the actual login API
       const response = await loginUser(credentials.email, credentials.password);
-      const { access_token } = response;
+      const { accessToken } = response;
 
       // Fetch user details using the access token
-      const userData = await fetchCurrentUser(access_token);
+      const userData = await fetchCurrentUser(accessToken);
 
       setUser(userData);
-      localStorage.setItem('authToken', access_token);
+      localStorage.setItem('authToken', accessToken);
       localStorage.setItem('currentUser', JSON.stringify(userData)); // Store user details (optional, but good for quick access)
 
       setLoadingAuth(false);
@@ -116,13 +122,7 @@ export const AuthProvider = ({ children }) => {
     setLoadingAuth(true);
     setAuthError(null);
     try {
-      // Call the actual register API
-      const newUser = await registerUser(
-        userData.fullName,
-        userData.email,
-        userData.password,
-      );
-
+      await registerUser(userData.fullName, userData.email, userData.password);
       // After successful registration, automatically log in the user
       // This will get the access token and set the user state.
       // This is crucial because the /register endpoint doesn't return a token directly.
@@ -141,15 +141,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
       setLoadingAuth(false);
-      throw error; // Re-throw error for calling component to handle
+      throw error;
     }
   };
 
   // Update user profile function (if you have such a feature)
   const updateUserProfile = async (profileData) => {
-    if (!user) return null; // Only if user is logged in
-    // setLoadingAuth(true); // Can show loading state if it takes time
-    // setAuthError(null);
+    if (!user) return null;
     try {
       // Call API to update profile
       // const updatedUserData = await api.updateProfile(user.id, profileData);
@@ -168,24 +166,36 @@ export const AuthProvider = ({ children }) => {
       });
     } catch (error) {
       console.error('Failed to update user profile:', error);
-      // setAuthError("Failed to update profile.");
-      // setLoadingAuth(false);
+      setAuthError('Failed to update profile.');
+      setLoadingAuth(false);
       throw error;
     }
   };
 
-  // Values passed through the context
-  const contextValue = {
-    user,
-    isAuthenticated: !!user, // Convert user object to boolean
-    loadingAuth,
-    authError,
-    setAuthError, // Allow resetting errors from outside
-    login,
-    logout,
-    register,
-    updateUserProfile,
-  };
+  // Values passed through the context, memoized to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      loadingAuth,
+      authError,
+      setAuthError,
+      login,
+      logout,
+      register,
+      updateUserProfile,
+    }),
+    [
+      user,
+      loadingAuth,
+      authError,
+      setAuthError,
+      login,
+      logout,
+      register,
+      updateUserProfile,
+    ],
+  );
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

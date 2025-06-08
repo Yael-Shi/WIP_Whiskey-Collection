@@ -5,11 +5,10 @@ import {
   Loader2,
   PlusCircle,
   Search,
-  Filter,
-  X,
   SlidersHorizontal,
   Grid3X3,
   List,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -209,7 +208,7 @@ const deleteWhiskeyFromApi = async (whiskeyId) =>
     }, 500);
   });
 
-export default function CollectionPage() {
+const CollectionPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -228,14 +227,13 @@ export default function CollectionPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // View states
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' או 'list'
+  const [viewMode, setViewMode] = useState('grid');
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingWhiskey, setEditingWhiskey] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // טען ויסקי מה-API
   const loadWhiskeys = async () => {
     setLoading(true);
     setError('');
@@ -256,23 +254,19 @@ export default function CollectionPage() {
     }
   };
 
-  // טען נתונים כאשר הפילטרים משתנים
   useEffect(() => {
     loadWhiskeys();
   }, [searchTerm, regionFilter, typeFilter, showFavorites, sortBy]);
 
-  // בדוק אם יש פרמטר URL לפתיחת המודל
   useEffect(() => {
     if (searchParams.get('add') === 'true') {
       setShowAddModal(true);
     }
   }, [searchParams]);
 
-  // פונקציות לטיפול באירועים
   const handleAddWhiskey = () => {
     setEditingWhiskey(null);
     setShowAddModal(true);
-    // עדכן URL
     const newParams = new URLSearchParams(searchParams);
     newParams.set('add', 'true');
     setSearchParams(newParams);
@@ -290,7 +284,7 @@ export default function CollectionPage() {
 
     try {
       await deleteWhiskeyFromApi(whiskeyId);
-      await loadWhiskeys(); // רענן את הרשימה
+      await loadWhiskeys();
     } catch (err) {
       console.error('Error deleting whiskey:', err);
       alert(err.message || 'שגיאה במחיקת הוויסקי.');
@@ -314,12 +308,11 @@ export default function CollectionPage() {
 
       setShowAddModal(false);
       setEditingWhiskey(null);
-      // הסר פרמטר URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('add');
       setSearchParams(newParams);
 
-      await loadWhiskeys(); // רענן את הרשימה
+      await loadWhiskeys();
     } catch (err) {
       console.error('Error saving whiskey:', err);
       setError(err.message || 'שגיאה בשמירת הוויסקי.');
@@ -332,7 +325,6 @@ export default function CollectionPage() {
     setShowAddModal(false);
     setEditingWhiskey(null);
     setError('');
-    // הסר פרמטר URL
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('add');
     setSearchParams(newParams);
@@ -400,6 +392,8 @@ export default function CollectionPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10 rtl:pl-10 rtl:pr-3 dark:bg-gray-700 dark:border-gray-600"
+              id="whiskey-search"
+              aria-label="Search by whiskey name or distillery"
             />
           </div>
 
@@ -438,12 +432,16 @@ export default function CollectionPage() {
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t dark:border-gray-700">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="region-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 אזור
               </label>
               <Select
                 value={regionFilter}
-                onChange={(e) => setRegionFilter(e.target.value)}
+                onValueChange={(value) => setRegionFilter(value)}
+                id="region-filter"
               >
                 <option value="all">כל האזורים</option>
                 {regions.map((region) => (
@@ -455,12 +453,16 @@ export default function CollectionPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="type-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 סוג
               </label>
               <Select
                 value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
+                onValueChange={(value) => setTypeFilter(value)}
+                id="type-filter"
               >
                 <option value="all">כל הסוגים</option>
                 {types.map((type) => (
@@ -472,12 +474,16 @@ export default function CollectionPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="sort-by"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 מיון לפי
               </label>
               <Select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onValueChange={(value) => setSortBy(value)}
+                id="sort-by"
               >
                 <option value="name">שם (א-ת)</option>
                 <option value="name_desc">שם (ת-א)</option>
@@ -493,12 +499,16 @@ export default function CollectionPage() {
             </div>
 
             <div className="flex items-center">
-              <label className="flex items-center space-x-2 rtl:space-x-reverse">
+              <label
+                htmlFor="show-favorites"
+                className="flex items-center space-x-2 rtl:space-x-reverse"
+              >
                 <input
                   type="checkbox"
                   checked={showFavorites}
                   onChange={(e) => setShowFavorites(e.target.checked)}
                   className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                  id="show-favorites"
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   רק מועדפים
@@ -548,19 +558,17 @@ export default function CollectionPage() {
       {showAddModal && (
         <Dialog open={showAddModal} onOpenChange={handleCloseModal}>
           {' '}
-          {/* 'open' prop controls visibility, 'onOpenChange' handles close */}
           <DialogContent className="sm:max-w-[425px]">
             {' '}
-            {/* You had 'size="lg"', this needs to be translated to Tailwind CSS classes on DialogContent */}
             <DialogHeader>
               <DialogTitle>
                 {editingWhiskey
                   ? `עריכת ${editingWhiskey.name}`
                   : 'הוספת ויסקי חדש'}
               </DialogTitle>
-              {/* <DialogDescription>
+              <DialogDescription>
                 Optional description here if needed.
-              </DialogDescription> */}
+              </DialogDescription>
             </DialogHeader>
             <WhiskeyForm
               whiskey={editingWhiskey}
@@ -569,13 +577,16 @@ export default function CollectionPage() {
               isSubmitting={isSubmitting}
               error={error}
             />
-            {/* If you have action buttons like "Save" or "Cancel" inside the dialog but outside WhiskeyForm, you'd put them here */}
-            {/* <DialogFooter>
-              <Button type="submit" form="whiskey-form">Save changes</Button>
-            </DialogFooter> */}
+            <DialogFooter>
+              <Button type="submit" form="whiskey-form">
+                Save changes
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
     </div>
   );
-}
+};
+
+export default CollectionPage;

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Button } from '@/components/ui/button.jsx';
+import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom'; // For "Add New Whiskey" button if it navigates
 import { Library, PlusCircle, Loader2 } from 'lucide-react';
 import WhiskeyCard from './WhiskeyCard';
 
-export default function WhiskeyList({
+const WhiskeyList = ({
   whiskeys,
   onEdit, // Callback for edit action on a whiskey card
   onDelete, // Callback for delete action on a whiskey card
@@ -14,9 +14,8 @@ export default function WhiskeyList({
   emptyStateMessage = 'הוסף את הוויסקי הראשון שלך כדי להתחיל!',
   // You might pass a URL or a callback for adding a new whiskey
   addNewWhiskeyPath, // e.g., "/collection/new" or similar to navigate to a form page
-}) {
+}) => {
   if (isLoading) {
-    // Enhanced Skeleton Loading state
     return (
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -24,7 +23,7 @@ export default function WhiskeyList({
       >
         {[...Array(8)].map((_, index) => (
           <div
-            key={index}
+            key={crypto.randomUUID()}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse"
           >
             <div className="h-48 bg-gray-300 dark:bg-gray-700" />
@@ -91,4 +90,6 @@ export default function WhiskeyList({
       ))}
     </div>
   );
-}
+};
+
+export default WhiskeyList;

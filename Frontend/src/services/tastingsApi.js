@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 /**
  * Handles deleting a tasting from the server.
@@ -20,11 +21,13 @@ export const deleteTastingApiCall = async (tastingId) => {
     const url = `${API_BASE_URL}/tastings/${tastingId}`;
 
     console.log(`Sending DELETE request to: ${url}`);
-    console.log(`With Authorization Bearer Token: ${token.substring(0, 30)}...`);
+    console.log(
+      `With Authorization Bearer Token: ${token.substring(0, 30)}...`,
+    );
 
     await axios.delete(url, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -34,13 +37,21 @@ export const deleteTastingApiCall = async (tastingId) => {
   } catch (error) {
     console.error('Error deleting tasting:', error);
     if (error.response) {
-      const errorMessage = error.response.data.detail || error.response.data.message || 'Failed to delete tasting.';
+      const errorMessage =
+        error.response.data.detail ||
+        error.response.data.message ||
+        'Failed to delete tasting.';
       console.error('Server error details:', error.response.data);
       throw new Error(errorMessage);
     } else if (error.request) {
-      throw new Error('No response from server. Please check your internet connection or server status.');
+      throw new Error(
+        'No response from server. Please check your internet connection or server status.',
+      );
     } else {
-      throw new Error(error.message || 'An unexpected error occurred during the delete operation.');
+      throw new Error(
+        error.message ||
+          'An unexpected error occurred during the delete operation.',
+      );
     }
   }
 };
