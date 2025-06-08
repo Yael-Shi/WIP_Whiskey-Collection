@@ -9,12 +9,14 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
-  
+
   html {
     scroll-behavior: smooth;
   }
@@ -81,7 +83,8 @@
 
 /* Add custom animation if "animate-bounce-custom" is used in HomePage.jsx */
 @keyframes bounce-custom {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-5%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }

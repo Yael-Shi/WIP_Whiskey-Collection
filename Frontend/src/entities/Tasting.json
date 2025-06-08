@@ -1,58 +1,54 @@
 {
-    "name": "Tasting",
-    "type": "object",
-    "properties": {
-      "whiskey_id": {
-        "type": "string",
-        "description": "מזהה הוויסקי"
-      },
-      "rating": {
-        "type": "number",
-        "minimum": 1,
-        "maximum": 10,
-        "description": "דירוג כללי (1-10)"
-      },
-      "tasting_date": {
-        "type": "string",
-        "format": "date",
-        "description": "תאריך הטעימה"
-      },
-      "color_notes": {
-        "type": "string",
-        "description": "הערות על צבע הוויסקי"
-      },
-      "nose_notes": {
-        "type": "string",
-        "description": "הערות על ריח הוויסקי"
-      },
-      "palate_notes": {
-        "type": "string",
-        "description": "הערות על טעם הוויסקי"
-      },
-      "finish_notes": {
-        "type": "string",
-        "description": "הערות על הסיומת של הוויסקי"
-      },
-      "water_notes": {
-        "type": "string",
-        "description": "הערות על השפעת מים על הוויסקי"
-      },
-      "personal_notes": {
-        "type": "string",
-        "description": "הערות אישיות"
-      },
-      "shared": {
-        "type": "boolean",
-        "description": "האם חוות הדעת משותפת עם חברים"
-      },
-      "setting": {
-        "type": "string",
-        "description": "הקשר הטעימה"
-      }
+  "name": "Tasting",
+  "type": "object",
+  "properties": {
+    "whiskey_id": {
+      "type": "string",
+      "description": "מזהה הוויסקי"
     },
-    "required": [
-      "whiskey_id",
-      "rating",
-      "tasting_date"
-    ]
-  }
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "דירוג כללי (1-10)"
+    },
+    "tasting_date": {
+      "type": "string",
+      "format": "date",
+      "description": "תאריך הטעימה"
+    },
+    "color_notes": {
+      "type": "string",
+      "description": "הערות על צבע הוויסקי"
+    },
+    "nose_notes": {
+      "type": "string",
+      "description": "הערות על ריח הוויסקי"
+    },
+    "palate_notes": {
+      "type": "string",
+      "description": "הערות על טעם הוויסקי"
+    },
+    "finish_notes": {
+      "type": "string",
+      "description": "הערות על הסיומת של הוויסקי"
+    },
+    "water_notes": {
+      "type": "string",
+      "description": "הערות על השפעת מים על הוויסקי"
+    },
+    "personal_notes": {
+      "type": "string",
+      "description": "הערות אישיות"
+    },
+    "shared": {
+      "type": "boolean",
+      "description": "האם חוות הדעת משותפת עם חברים"
+    },
+    "setting": {
+      "type": "string",
+      "description": "הקשר הטעימה"
+    }
+  },
+  "required": ["whiskey_id", "rating", "tasting_date"]
+}

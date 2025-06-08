@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 import { LogIn, Mail, Lock, AlertCircle, Wine } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function LoginPage() {
+const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, loadingAuth, authError, clearAuthError } = useAuth();
+  const { login, isAuthenticated, loadingAuth, authError, clearAuthError } =
+    useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +47,7 @@ export default function LoginPage() {
     try {
       await login({ email, password });
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,16 +55,25 @@ export default function LoginPage() {
 
   if (loadingAuth && !isAuthenticated) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
+      <div
+        className="flex justify-center items-center min-h-[calc(100vh-200px)]"
+        dir="rtl"
+      >
         <LoadingSpinner size="lg" message="טוען..." />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8" dir="rtl">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8"
+      dir="rtl"
+    >
       <div className="w-full max-w-md">
-        <Link to="/" className="flex justify-center mb-8 text-amber-600 dark:text-amber-400">
+        <Link
+          to="/"
+          className="flex justify-center mb-8 text-amber-600 dark:text-amber-400"
+        >
           <Wine className="h-12 w-12" />
         </Link>
         <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 sm:p-8">
@@ -73,7 +83,10 @@ export default function LoginPage() {
 
           {(pageError || authError) && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-md text-sm text-red-600 dark:text-red-300 flex items-center">
-              <AlertCircle size={18} className="ml-2 rtl:mr-2 rtl:ml-0 flex-shrink-0" />
+              <AlertCircle
+                size={18}
+                className="ml-2 rtl:mr-2 rtl:ml-0 flex-shrink-0"
+              />
               <span>{pageError || authError}</span>
             </div>
           )}
@@ -125,11 +138,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'מתחבר...' : 'התחבר'}
               <LogIn className="mr-2 rtl:ml-2 rtl:mr-0 h-5 w-5" />
             </Button>
@@ -148,4 +157,6 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

@@ -2,7 +2,13 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function LoadingSpinner({ size = 'default', className = '', message = '', textColor = 'text-amber-600 dark:text-amber-400', iconClassName }) {
+const LoadingSpinner = ({
+  size = 'default',
+  className = '',
+  message = '',
+  textColor = 'text-amber-600 dark:text-amber-400',
+  iconClassName,
+}) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     default: 'h-6 w-6',
@@ -14,18 +20,21 @@ export default function LoadingSpinner({ size = 'default', className = '', messa
     .replace('text-amber-600', 'text-gray-600')
     .replace('dark:text-amber-400', 'dark:text-gray-400');
 
-
   return (
-    <div className={cn("flex flex-col items-center justify-center", className)}>
+    <div className={cn('flex flex-col items-center justify-center', className)}>
       <Loader2
         className={cn(
-          "animate-spin",
+          'animate-spin',
           sizeClasses[size] || sizeClasses.default,
           textColor,
-          iconClassName
+          iconClassName,
         )}
       />
-      {message && <p className={cn("mt-2 text-sm", messageTextColor)}>{message}</p>}
+      {message && (
+        <p className={cn('mt-2 text-sm', messageTextColor)}>{message}</p>
+      )}
     </div>
   );
-}
+};
+
+export default LoadingSpinner;

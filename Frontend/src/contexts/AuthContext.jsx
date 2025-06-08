@@ -35,7 +35,10 @@ export const AuthProvider = ({ children }) => {
             const userData = await fetchCurrentUser(token);
             setUser(userData);
           } catch (error) {
-            console.error("Token validation failed or user data fetch error:", error);
+            console.error(
+              'Token validation failed or user data fetch error:',
+              error,
+            );
             // If token is invalid or user data cannot be fetched, clear it
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
@@ -45,7 +48,7 @@ export const AuthProvider = ({ children }) => {
           setUser(null); // No token, user is not logged in
         }
       } catch (error) {
-        console.error("Error during initial auth check:", error);
+        console.error('Error during initial auth check:', error);
         setUser(null); // In case of any error, user is not logged in
         localStorage.removeItem('authToken'); // Clear token if check fails
         localStorage.removeItem('currentUser');
@@ -72,12 +75,12 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem('authToken', access_token);
       localStorage.setItem('currentUser', JSON.stringify(userData)); // Store user details (optional, but good for quick access)
-      
+
       setLoadingAuth(false);
       return userData; // Return user data on success
     } catch (error) {
-      console.error("Login failed:", error);
-      const errorMessage = error.message || "ההתחברות נכשלה. אנא נסה שוב.";
+      console.error('Login failed:', error);
+      const errorMessage = error.message || 'ההתחברות נכשלה. אנא נסה שוב.';
       setAuthError(errorMessage);
       setUser(null);
       localStorage.removeItem('authToken');
@@ -95,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       // If your backend has a logout endpoint that invalidates tokens, call it here.
       // await api.logout(); // Example: await logoutApiCall();
     } catch (error) {
-      console.error("Error during logout API call (if any):", error);
+      console.error('Error during logout API call (if any):', error);
       // Usually proceed with local cleanup even if API call fails,
       // unless token invalidation is critical before local cleanup.
     } finally {
@@ -114,18 +117,25 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
     try {
       // Call the actual register API
-      const newUser = await registerUser(userData.fullName, userData.email, userData.password);
-      
+      const newUser = await registerUser(
+        userData.fullName,
+        userData.email,
+        userData.password,
+      );
+
       // After successful registration, automatically log in the user
       // This will get the access token and set the user state.
       // This is crucial because the /register endpoint doesn't return a token directly.
-      const loggedInUser = await login({ email: userData.email, password: userData.password });
+      const loggedInUser = await login({
+        email: userData.email,
+        password: userData.password,
+      });
 
       setLoadingAuth(false);
       return loggedInUser; // Return the logged-in user data
     } catch (error) {
-      console.error("Registration failed:", error);
-      const errorMessage = error.message || "ההרשמה נכשלה. אנא נסה שוב.";
+      console.error('Registration failed:', error);
+      const errorMessage = error.message || 'ההרשמה נכשלה. אנא נסה שוב.';
       setAuthError(errorMessage);
       setUser(null);
       localStorage.removeItem('authToken');
@@ -157,7 +167,7 @@ export const AuthProvider = ({ children }) => {
         }, 500);
       });
     } catch (error) {
-      console.error("Failed to update user profile:", error);
+      console.error('Failed to update user profile:', error);
       // setAuthError("Failed to update profile.");
       // setLoadingAuth(false);
       throw error;
@@ -178,8 +188,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
