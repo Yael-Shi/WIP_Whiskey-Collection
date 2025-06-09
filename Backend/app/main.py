@@ -1,41 +1,44 @@
+from contextlib import asynccontextmanager
+from typing import Any
+from typing import AsyncGenerator
+from typing import Dict
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Database engine for table creation
+from app.db.database import Base
 from app.db.database import engine
-
-# Database models for creating tables
-from app.models import distillery
-from app.models import tasting
-from app.models import user
-from app.models import whiskey
-
-# Import API routers to include their endpoints in the application
 from app.routers import auth
 from app.routers import distilleries
 from app.routers import tastings
 from app.routers import users
 from app.routers import whiskeys
 
-# Create database tables (SQLAlchemy Base.metadata.create_all)
-user.Base.metadata.create_all(bind=engine)
-whiskey.Base.metadata.create_all(bind=engine)
-tasting.Base.metadata.create_all(bind=engine)
-distillery.Base.metadata.create_all(bind=engine)
 
-# Initialize the FastAPI application
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    Base.metadata.create_all(bind=engine)
+    print("Application startup: database tables created")
+
+    yield
+
+    # Shutdown: here adding code that runs when closing the app
+    print("Application shutdown: cleaning up resources")
+    # close connections, clean resources
+    # If necessary, you can add asynchronous calls here to close connections.
+
+
 app = FastAPI(
     title="Whiskey Collection API",
     description="API for managing a whiskey collection and tastings",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
-# Configure CORS (Cross-Origin Resource Sharing) middleware
-# This allows requests from specified origins (e.g., your frontend)
 origins = [
     "http://localhost",
-    "http://localhost:3000",  # Frontend development server
-    "http://localhost:8000",  # Backend server (if accessed directly)
+    "http://localhost:3000",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
@@ -46,8 +49,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include all API routers into the main application
-# Each router defines a set of related endpoints with a common prefix
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(whiskeys.router, prefix="/api", tags=["Whiskeys"])
@@ -55,16 +56,9 @@ app.include_router(tastings.router, prefix="/api", tags=["Tastings"])
 app.include_router(distilleries.router, prefix="/api", tags=["Distilleries"])
 
 
-# Define a root endpoint for a basic welcome message or API status
 @app.get("/")
-def read_root():
+def read_root() -> Dict[str, Any]:
     return {
-        "message": "Welcome to Whiskey Collection API!"
-        "Visit /docs for API documentation."
+        "message": "Welcome to Whiskey Collection API!",
+        "doc_hint": "Visit /docs for API documentation.",
     }
-
-
-# All specific API endpoints (like /auth/register, /auth/token, /api/whiskeys, etc.)
-# are defined within their respective router files
-# (e.g., app/routers/auth.py, app/routers/whiskeys.py)
-# and are implicitly added to the application via the app.include_router calls above.

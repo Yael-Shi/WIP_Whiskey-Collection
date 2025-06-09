@@ -1,34 +1,40 @@
-from sqlalchemy import Boolean
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func  # For default created_date
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from app.db.database import Base  # Import Base from your database setup
+from sqlalchemy import Boolean
+from sqlalchemy import DateTime
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
+from app.db.database import Base
+
+if TYPE_CHECKING:
+    from app.models.tasting import Tasting
+    from app.models.whiskey import Whiskey
 
 
 class User(Base):
-    """
-    SQLAlchemy model for the User.
-    """
-
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    full_name = Column(String, index=True)
-    hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)  # Optional: if you need admin roles
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    full_name: Mapped[str | None] = mapped_column(String, index=True)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    created_date = Column(DateTime(timezone=True), server_default=func.now())
-    updated_date = Column(DateTime(timezone=True), onupdate=func.now())
+    created_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now()
+    )
 
-    # Relationships (if any, e.g., a user has many whiskeys or tastings)
-    whiskeys = relationship("Whiskey", back_populates="owner")
-    tastings = relationship("Tasting", back_populates="owner")
+    whiskeys: Mapped[list["Whiskey"]] = relationship(back_populates="owner")
+    tastings: Mapped[list["Tasting"]] = relationship(back_populates="owner")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}')>"

@@ -4,10 +4,11 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.auth import get_current_active_user
 from app.db.database import get_db
+from app.models.tasting import Tasting as TastingModel
 from app.models.user import User
 from app.schemas.tasting_schema import Tasting
 from app.schemas.tasting_schema import TastingCreate
@@ -23,74 +24,73 @@ router = APIRouter()
 
 
 @router.get("/tastings/", response_model=List[Tasting])
-def read_tastings(
+async def read_tastings(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
-    """
-    Retrieve all tastings for the current user
-    """
-    tastings = get_tastings_by_user(db, user_id=current_user.id, skip=skip, limit=limit)
+) -> List[TastingModel]:
+    tastings = await get_tastings_by_user(
+        db, user_id=current_user.id, skip=skip, limit=limit
+    )
     return tastings
 
 
 @router.get("/whiskeys/{whiskey_id}/tastings/", response_model=List[Tasting])
-def read_tastings_by_whiskey(
+async def read_tastings_by_whiskey(
     whiskey_id: int,
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> List[TastingModel]:
     """
     Retrieve all tastings for a specific whiskey by the current user
     """
-    tastings = get_tastings_by_whiskey(
+    tastings = await get_tastings_by_whiskey(
         db, whiskey_id=whiskey_id, user_id=current_user.id, skip=skip, limit=limit
     )
     return tastings
 
 
 @router.post("/tastings/", response_model=Tasting, status_code=status.HTTP_201_CREATED)
-def create_new_tasting(
+async def create_new_tasting(
     tasting: TastingCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> TastingModel:
     """
     Create a new tasting for the current user
     """
-    return create_tasting(db=db, tasting=tasting, user_id=current_user.id)
+    return await create_tasting(db=db, tasting=tasting, user_id=current_user.id)
 
 
 @router.get("/tastings/{tasting_id}", response_model=Tasting)
-def read_tasting(
+async def read_tasting(
     tasting_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> TastingModel:
     """
     Retrieve a specific tasting by ID
     """
-    db_tasting = get_tasting(db, tasting_id=tasting_id, user_id=current_user.id)
+    db_tasting = await get_tasting(db, tasting_id=tasting_id, user_id=current_user.id)
     if db_tasting is None:
         raise HTTPException(status_code=404, detail="Tasting not found")
     return db_tasting
 
 
 @router.put("/tastings/{tasting_id}", response_model=Tasting)
-def update_existing_tasting(
+async def update_existing_tasting(
     tasting_id: int,
     tasting: TastingUpdate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> TastingModel:
     """
     Update a tasting by ID
     """
-    db_tasting = update_tasting(
+    db_tasting = await update_tasting(
         db, tasting_id=tasting_id, tasting_update_data=tasting, user_id=current_user.id
     )
     if db_tasting is None:
@@ -101,15 +101,17 @@ def update_existing_tasting(
 
 
 @router.delete("/tastings/{tasting_id}", response_model=Tasting)
-def delete_existing_tasting(
+async def delete_existing_tasting(
     tasting_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> TastingModel:
     """
     Delete a tasting by ID
     """
-    db_tasting = delete_tasting(db, tasting_id=tasting_id, user_id=current_user.id)
+    db_tasting = await delete_tasting(
+        db, tasting_id=tasting_id, user_id=current_user.id
+    )
     if db_tasting is None:
         raise HTTPException(
             status_code=404, detail="Tasting not found or not authorized"
