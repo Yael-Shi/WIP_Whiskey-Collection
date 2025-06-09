@@ -1,23 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ודא נתיב נכון
 
-import { Loader2 } from 'lucide-react';
+import {
+  Loader2,
+  PlusCircle,
+  Search,
+  SlidersHorizontal,
+  Grid3X3,
+  List,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select} from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Select } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 import WhiskeyList from '../components/whiskey/WhiskeyList';
 import WhiskeyForm from '../components/whiskey/WhiskeyForm';
 
 import { regions, types } from '../components/utils/whiskeyData';
 
-import { PlusCircle, Search, Filter, X, SlidersHorizontal, Grid3X3, List } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 // דמה של פונקציות API - החלף בקריאות API אמיתיות
-const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, limit = 20) => {
-  return new Promise(resolve => {
+const fetchWhiskeysFromApi = async (
+  filters = {},
+  sortBy = 'name',
+  page = 1,
+  limit = 20,
+) =>
+  new Promise((resolve) => {
     setTimeout(() => {
       // דמה של נתוני ויסקי
       const mockWhiskeys = [
@@ -31,9 +51,10 @@ const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, lim
           abv: 43.0,
           price: 450,
           bottle_status: 75,
-          image_url: 'https://via.placeholder.com/200/8B4513/FFFFFF?text=Lagavulin',
+          image_url:
+            'https://via.placeholder.com/200/8B4513/FFFFFF?text=Lagavulin',
           is_favorite: true,
-          purchase_date: '2024-01-15'
+          purchase_date: '2024-01-15',
         },
         {
           id: 'w2',
@@ -45,9 +66,10 @@ const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, lim
           abv: 40.0,
           price: 280,
           bottle_status: 100,
-          image_url: 'https://via.placeholder.com/200/DAA520/FFFFFF?text=Glenfiddich',
+          image_url:
+            'https://via.placeholder.com/200/DAA520/FFFFFF?text=Glenfiddich',
           is_favorite: false,
-          purchase_date: '2024-03-20'
+          purchase_date: '2024-03-20',
         },
         {
           id: 'w3',
@@ -59,9 +81,10 @@ const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, lim
           abv: 54.2,
           price: 380,
           bottle_status: 90,
-          image_url: 'https://via.placeholder.com/200/2F4F4F/FFFFFF?text=Ardbeg',
+          image_url:
+            'https://via.placeholder.com/200/2F4F4F/FFFFFF?text=Ardbeg',
           is_favorite: true,
-          purchase_date: '2024-02-10'
+          purchase_date: '2024-02-10',
         },
         {
           id: 'w4',
@@ -73,33 +96,39 @@ const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, lim
           abv: 43.0,
           price: 1200,
           bottle_status: 60,
-          image_url: 'https://via.placeholder.com/200/CD853F/FFFFFF?text=Yamazaki',
+          image_url:
+            'https://via.placeholder.com/200/CD853F/FFFFFF?text=Yamazaki',
           is_favorite: true,
-          purchase_date: '2023-12-05'
-        }
+          purchase_date: '2023-12-05',
+        },
       ];
 
       // הדמה של סינון
       let filteredWhiskeys = mockWhiskeys;
-      
+
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        filteredWhiskeys = filteredWhiskeys.filter(w =>
-          w.name.toLowerCase().includes(searchLower) ||
-          w.distillery.toLowerCase().includes(searchLower)
+        filteredWhiskeys = filteredWhiskeys.filter(
+          (w) =>
+            w.name.toLowerCase().includes(searchLower) ||
+            w.distillery.toLowerCase().includes(searchLower),
         );
       }
-      
+
       if (filters.region && filters.region !== 'all') {
-        filteredWhiskeys = filteredWhiskeys.filter(w => w.region === filters.region);
+        filteredWhiskeys = filteredWhiskeys.filter(
+          (w) => w.region === filters.region,
+        );
       }
-      
+
       if (filters.type && filters.type !== 'all') {
-        filteredWhiskeys = filteredWhiskeys.filter(w => w.type === filters.type);
+        filteredWhiskeys = filteredWhiskeys.filter(
+          (w) => w.type === filters.type,
+        );
       }
-      
+
       if (filters.favorites) {
-        filteredWhiskeys = filteredWhiskeys.filter(w => w.is_favorite);
+        filteredWhiskeys = filteredWhiskeys.filter((w) => w.is_favorite);
       }
 
       // הדמה של מיון
@@ -130,58 +159,56 @@ const fetchWhiskeysFromApi = async (filters = {}, sortBy = 'name', page = 1, lim
         whiskeys: filteredWhiskeys,
         totalCount: filteredWhiskeys.length,
         currentPage: page,
-        totalPages: Math.ceil(filteredWhiskeys.length / limit)
+        totalPages: Math.ceil(filteredWhiskeys.length / limit),
       });
     }, 600);
   });
-};
 
-const saveWhiskeyToApi = async (whiskeyData) => {
-  return new Promise((resolve, reject) => {
+const saveWhiskeyToApi = async (whiskeyData) =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (Math.random() < 0.1) { // 10% סיכוי לכשל (לצורך בדיקה)
-        reject(new Error("שגיאה בשמירת הוויסקי. נסה שוב."));
+      if (Math.random() < 0.1) {
+        // 10% סיכוי לכשל (לצורך בדיקה)
+        reject(new Error('שגיאה בשמירת הוויסקי. נסה שוב.'));
         return;
       }
       const savedWhiskey = {
         ...whiskeyData,
-        id: 'w' + Math.random().toString(36).substring(7),
+        id: `w${Math.random().toString(36).substring(7)}`,
       };
-      console.log("Whiskey saved (mock):", savedWhiskey);
+      console.log('Whiskey saved (mock):', savedWhiskey);
       resolve(savedWhiskey);
     }, 1000);
   });
-};
 
-const updateWhiskeyInApi = async (whiskeyId, whiskeyData) => {
-  return new Promise((resolve, reject) => {
+const updateWhiskeyInApi = async (whiskeyId, whiskeyData) =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (Math.random() < 0.05) { // 5% סיכוי לכשל
-        reject(new Error("שגיאה בעדכון הוויסקי. נסה שוב."));
+      if (Math.random() < 0.05) {
+        // 5% סיכוי לכשל
+        reject(new Error('שגיאה בעדכון הוויסקי. נסה שוב.'));
         return;
       }
       const updatedWhiskey = { ...whiskeyData, id: whiskeyId };
-      console.log("Whiskey updated (mock):", updatedWhiskey);
+      console.log('Whiskey updated (mock):', updatedWhiskey);
       resolve(updatedWhiskey);
     }, 800);
   });
-};
 
-const deleteWhiskeyFromApi = async (whiskeyId) => {
-  return new Promise((resolve, reject) => {
+const deleteWhiskeyFromApi = async (whiskeyId) =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (Math.random() < 0.05) { // 5% סיכוי לכשל
-        reject(new Error("שגיאה במחיקת הוויסקי. נסה שוב."));
+      if (Math.random() < 0.05) {
+        // 5% סיכוי לכשל
+        reject(new Error('שגיאה במחיקת הוויסקי. נסה שוב.'));
         return;
       }
-      console.log("Whiskey deleted (mock):", whiskeyId);
+      console.log('Whiskey deleted (mock):', whiskeyId);
       resolve(true);
     }, 500);
   });
-};
 
-
-export default function CollectionPage() {
+const CollectionPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -190,7 +217,7 @@ export default function CollectionPage() {
   const [whiskeys, setWhiskeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [regionFilter, setRegionFilter] = useState('all');
@@ -198,17 +225,15 @@ export default function CollectionPage() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [sortBy, setSortBy] = useState('name');
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // View states
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' או 'list'
-  
+  const [viewMode, setViewMode] = useState('grid');
+
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingWhiskey, setEditingWhiskey] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  // טען ויסקי מה-API
   const loadWhiskeys = async () => {
     setLoading(true);
     setError('');
@@ -217,35 +242,31 @@ export default function CollectionPage() {
         search: searchTerm,
         region: regionFilter,
         type: typeFilter,
-        favorites: showFavorites
+        favorites: showFavorites,
       };
       const result = await fetchWhiskeysFromApi(filters, sortBy);
       setWhiskeys(result.whiskeys);
     } catch (err) {
-      console.error("Error loading whiskeys:", err);
-      setError("שגיאה בטעינת אוסף הוויסקי.");
+      console.error('Error loading whiskeys:', err);
+      setError('שגיאה בטעינת אוסף הוויסקי.');
     } finally {
       setLoading(false);
     }
   };
 
-  // טען נתונים כאשר הפילטרים משתנים
   useEffect(() => {
     loadWhiskeys();
   }, [searchTerm, regionFilter, typeFilter, showFavorites, sortBy]);
 
-  // בדוק אם יש פרמטר URL לפתיחת המודל
   useEffect(() => {
     if (searchParams.get('add') === 'true') {
       setShowAddModal(true);
     }
   }, [searchParams]);
 
-  // פונקציות לטיפול באירועים
   const handleAddWhiskey = () => {
     setEditingWhiskey(null);
     setShowAddModal(true);
-    // עדכן URL
     const newParams = new URLSearchParams(searchParams);
     newParams.set('add', 'true');
     setSearchParams(newParams);
@@ -257,16 +278,16 @@ export default function CollectionPage() {
   };
 
   const handleDeleteWhiskey = async (whiskeyId) => {
-    if (!window.confirm("האם אתה בטוח שברצונך למחוק ויסקי זה מהאוסף?")) {
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק ויסקי זה מהאוסף?')) {
       return;
     }
-    
+
     try {
       await deleteWhiskeyFromApi(whiskeyId);
-      await loadWhiskeys(); // רענן את הרשימה
+      await loadWhiskeys();
     } catch (err) {
-      console.error("Error deleting whiskey:", err);
-      alert(err.message || "שגיאה במחיקת הוויסקי.");
+      console.error('Error deleting whiskey:', err);
+      alert(err.message || 'שגיאה במחיקת הוויסקי.');
     }
   };
 
@@ -277,25 +298,24 @@ export default function CollectionPage() {
   const handleSaveWhiskey = async (whiskeyData) => {
     setIsSubmitting(true);
     setError('');
-    
+
     try {
       if (editingWhiskey) {
         await updateWhiskeyInApi(editingWhiskey.id, whiskeyData);
       } else {
         await saveWhiskeyToApi(whiskeyData);
       }
-      
+
       setShowAddModal(false);
       setEditingWhiskey(null);
-      // הסר פרמטר URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('add');
       setSearchParams(newParams);
-      
-      await loadWhiskeys(); // רענן את הרשימה
+
+      await loadWhiskeys();
     } catch (err) {
-      console.error("Error saving whiskey:", err);
-      setError(err.message || "שגיאה בשמירת הוויסקי.");
+      console.error('Error saving whiskey:', err);
+      setError(err.message || 'שגיאה בשמירת הוויסקי.');
     } finally {
       setIsSubmitting(false);
     }
@@ -305,7 +325,6 @@ export default function CollectionPage() {
     setShowAddModal(false);
     setEditingWhiskey(null);
     setError('');
-    // הסר פרמטר URL
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('add');
     setSearchParams(newParams);
@@ -319,12 +338,20 @@ export default function CollectionPage() {
     setSortBy('name');
   };
 
-  const hasActiveFilters = searchTerm || regionFilter !== 'all' || typeFilter !== 'all' || showFavorites;
+  const hasActiveFilters =
+    searchTerm ||
+    regionFilter !== 'all' ||
+    typeFilter !== 'all' ||
+    showFavorites;
 
   if (loading && whiskeys.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-200px)] text-center" dir="rtl">
-        <Loader2 className="h-10 w-10 animate-spin text-amber-600 mb-4" /> {/* Adjust size and color as needed */}
+      <div
+        className="flex flex-col justify-center items-center min-h-[calc(100vh-200px)] text-center"
+        dir="rtl"
+      >
+        <Loader2 className="h-10 w-10 animate-spin text-amber-600 mb-4" />{' '}
+        {/* Adjust size and color as needed */}
         <p className="text-gray-700 dark:text-gray-300 text-lg">טוען אוסף...</p>
       </div>
     );
@@ -343,7 +370,10 @@ export default function CollectionPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button onClick={handleAddWhiskey} className="bg-amber-600 hover:bg-amber-700 text-white">
+          <Button
+            onClick={handleAddWhiskey}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
             <PlusCircle className="ml-2 rtl:mr-2 h-5 w-5" />
             הוסף ויסקי
           </Button>
@@ -362,9 +392,11 @@ export default function CollectionPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10 rtl:pl-10 rtl:pr-3 dark:bg-gray-700 dark:border-gray-600"
+              id="whiskey-search"
+              aria-label="Search by whiskey name or distillery"
             />
           </div>
-          
+
           {/* Filter Toggle */}
           <Button
             variant="outline"
@@ -374,7 +406,7 @@ export default function CollectionPage() {
             <SlidersHorizontal className="ml-2 rtl:mr-2 h-4 w-4" />
             {showFilters ? 'הסתר פילטרים' : 'הצג פילטרים'}
           </Button>
-          
+
           {/* View Mode Toggle */}
           <div className="flex border rounded-md dark:border-gray-600">
             <Button
@@ -400,34 +432,59 @@ export default function CollectionPage() {
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t dark:border-gray-700">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="region-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 אזור
               </label>
-              <Select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)}>
+              <Select
+                value={regionFilter}
+                onValueChange={(value) => setRegionFilter(value)}
+                id="region-filter"
+              >
                 <option value="all">כל האזורים</option>
-                {regions.map(region => (
-                  <option key={region} value={region}>{region}</option>
+                {regions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
                 ))}
               </Select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="type-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 סוג
               </label>
-              <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+              <Select
+                value={typeFilter}
+                onValueChange={(value) => setTypeFilter(value)}
+                id="type-filter"
+              >
                 <option value="all">כל הסוגים</option>
-                {types.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </Select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="sort-by"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 מיון לפי
               </label>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <Select
+                value={sortBy}
+                onValueChange={(value) => setSortBy(value)}
+                id="sort-by"
+              >
                 <option value="name">שם (א-ת)</option>
                 <option value="name_desc">שם (ת-א)</option>
                 <option value="price">מחיר (נמוך לגבוה)</option>
@@ -435,17 +492,23 @@ export default function CollectionPage() {
                 <option value="age">גיל (צעיר לוותיק)</option>
                 <option value="age_desc">גיל (ותיק לצעיר)</option>
                 <option value="purchase_date">תאריך רכישה (ישן לחדש)</option>
-                <option value="purchase_date_desc">תאריך רכישה (חדש לישן)</option>
+                <option value="purchase_date_desc">
+                  תאריך רכישה (חדש לישן)
+                </option>
               </Select>
             </div>
-            
+
             <div className="flex items-center">
-              <label className="flex items-center space-x-2 rtl:space-x-reverse">
+              <label
+                htmlFor="show-favorites"
+                className="flex items-center space-x-2 rtl:space-x-reverse"
+              >
                 <input
                   type="checkbox"
                   checked={showFavorites}
                   onChange={(e) => setShowFavorites(e.target.checked)}
                   className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                  id="show-favorites"
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   רק מועדפים
@@ -486,20 +549,26 @@ export default function CollectionPage() {
         onViewDetails={handleViewWhiskeyDetails}
         emptyStateMessage={
           hasActiveFilters
-            ? "לא נמצאו ויסקי התואמים לחיפוש. נסה לשנות את הפילטרים."
-            : "עדיין לא הוספת ויסקי לאוסף. הוסף את הבקבוק הראשון שלך!"
+            ? 'לא נמצאו ויסקי התואמים לחיפוש. נסה לשנות את הפילטרים.'
+            : 'עדיין לא הוספת ויסקי לאוסף. הוסף את הבקבוק הראשון שלך!'
         }
       />
 
       {/* Add/Edit Whiskey Modal */}
       {showAddModal && (
-        <Dialog open={showAddModal} onOpenChange={handleCloseModal}> {/* 'open' prop controls visibility, 'onOpenChange' handles close */}
-          <DialogContent className="sm:max-w-[425px]"> {/* You had 'size="lg"', this needs to be translated to Tailwind CSS classes on DialogContent */}
+        <Dialog open={showAddModal} onOpenChange={handleCloseModal}>
+          {' '}
+          <DialogContent className="sm:max-w-[425px]">
+            {' '}
             <DialogHeader>
-              <DialogTitle>{editingWhiskey ? `עריכת ${editingWhiskey.name}` : "הוספת ויסקי חדש"}</DialogTitle>
-              {/* <DialogDescription>
+              <DialogTitle>
+                {editingWhiskey
+                  ? `עריכת ${editingWhiskey.name}`
+                  : 'הוספת ויסקי חדש'}
+              </DialogTitle>
+              <DialogDescription>
                 Optional description here if needed.
-              </DialogDescription> */}
+              </DialogDescription>
             </DialogHeader>
             <WhiskeyForm
               whiskey={editingWhiskey}
@@ -508,13 +577,16 @@ export default function CollectionPage() {
               isSubmitting={isSubmitting}
               error={error}
             />
-            {/* If you have action buttons like "Save" or "Cancel" inside the dialog but outside WhiskeyForm, you'd put them here */}
-            {/* <DialogFooter>
-              <Button type="submit" form="whiskey-form">Save changes</Button>
-            </DialogFooter> */}
+            <DialogFooter>
+              <Button type="submit" form="whiskey-form">
+                Save changes
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
     </div>
   );
-}
+};
+
+export default CollectionPage;

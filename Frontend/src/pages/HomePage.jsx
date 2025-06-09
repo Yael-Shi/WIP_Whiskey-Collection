@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
 
 import { Wine, LogIn } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function HomePage() {
+const HomePage = () => {
   const { isAuthenticated, loadingAuth, loginUser } = useAuth();
   const navigate = useNavigate();
 
@@ -20,8 +20,12 @@ export default function HomePage() {
   // Display loading indicator while authentication state is being determined
   if (loadingAuth) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-amber-200 via-orange-300 to-yellow-200 dark:from-gray-800 dark:via-gray-900 dark:to-black" dir="rtl">
-        <p className="text-xl text-gray-700 dark:text-gray-300">טוען...</p> {/* Loading text */}
+      <div
+        className="flex justify-center items-center min-h-screen bg-gradient-to-br from-amber-200 via-orange-300 to-yellow-200 dark:from-gray-800 dark:via-gray-900 dark:to-black"
+        dir="rtl"
+      >
+        <p className="text-xl text-gray-700 dark:text-gray-300">טוען...</p>{' '}
+        {/* Loading text */}
       </div>
     );
   }
@@ -75,8 +79,8 @@ export default function HomePage() {
           max-w-xl mx-auto
         "
       >
-        הפלטפורמה המושלמת לגלות, לתעד ולנהל את אוסף הוויסקי האישי שלכם.
-        התחברו כדי להתחיל!
+        הפלטפורמה המושלמת לגלות, לתעד ולנהל את אוסף הוויסקי האישי שלכם. התחברו
+        כדי להתחיל!
       </p>
 
       {/* Main call-to-action button */}
@@ -109,4 +113,6 @@ export default function HomePage() {
       </p>
     </div>
   );
-}
+};
+
+export default HomePage;

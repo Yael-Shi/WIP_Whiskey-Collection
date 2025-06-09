@@ -1,34 +1,59 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Boolean, ForeignKey, DateTime
+from datetime import date
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Boolean
+from sqlalchemy import Date
+from sqlalchemy import DateTime
+from sqlalchemy import Float
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.database import Base
 
+if TYPE_CHECKING:
+    from app.models.tasting import Tasting
+    from app.models.user import User
+
+
 class Whiskey(Base):
     __tablename__ = "whiskeys"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
-    distillery = Column(String)
-    region = Column(String)
-    age = Column(Integer, nullable=True)
-    type = Column(String) # e.g., Single Malt, Bourbon
-    abv = Column(Float, nullable=True) # Alcohol By Volume
-    price = Column(Float, nullable=True)
-    purchase_date = Column(Date, nullable=True)
-    bottle_size_ml = Column(Integer, nullable=True)
-    bottle_status_percent = Column(Integer, default=100) # 0-100%
-    notes = Column(String, nullable=True)
-    image_url = Column(String, nullable=True)
-    is_favorite = Column(Boolean, default=False)
-    
-    owner_id = Column(Integer, ForeignKey("users.id")) # Foreign key to users table
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    distillery: Mapped[str | None] = mapped_column(String, nullable=True)
+    region: Mapped[str | None] = mapped_column(String, nullable=True)
+    age: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    type: Mapped[str | None] = mapped_column(
+        String, nullable=True
+    )  # e.g., Single Malt, Bourbon
+    abv: Mapped[float | None] = mapped_column(Float, nullable=True)  # Alcohol By Volume
+    price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    purchase_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    bottle_size_ml: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    bottle_status_percent: Mapped[int] = mapped_column(Integer, default=100)  # 0-100%
+    notes: Mapped[str | None] = mapped_column(String, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    is_favorite: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    owner = relationship("User", back_populates="whiskeys") # Relationship to User model
-    tastings = relationship("Tasting", back_populates="whiskey_info", cascade="all, delete-orphan")
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    created_date = Column(DateTime(timezone=True), server_default=func.now())
-    updated_date = Column(DateTime(timezone=True), onupdate=func.now())
+    owner: Mapped["User"] = relationship(back_populates="whiskeys")
+    tastings: Mapped[list["Tasting"]] = relationship(
+        back_populates="whiskey_info", cascade="all, delete-orphan"
+    )
 
-    def __repr__(self):
+    created_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now()
+    )
+
+    def __repr__(self) -> str:
         return f"<Whiskey(id={self.id}, name='{self.name}')>"

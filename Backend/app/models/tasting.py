@@ -1,29 +1,48 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Date, Text
+from datetime import date
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Boolean
+from sqlalchemy import Date
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
-from datetime import datetime
 
 from app.db.database import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.whiskey import Whiskey
+
 
 class Tasting(Base):
     __tablename__ = "tastings"
 
-    id = Column(Integer, primary_key=True, index=True)
-    whiskey_id = Column(Integer, ForeignKey("whiskeys.id"))
-    tasting_date = Column(Date, index=True)
-    rating = Column(Integer)  # 1-10
-    color_notes = Column(Text, nullable=True)
-    nose_notes = Column(Text, nullable=True)
-    palate_notes = Column(Text, nullable=True)
-    finish_notes = Column(Text, nullable=True)
-    water_notes = Column(Text, nullable=True)
-    personal_notes = Column(Text, nullable=True)
-    shared = Column(Boolean, default=False)
-    setting = Column(String, nullable=True)
-    
-    created_date = Column(Date, default=datetime.now)
-    updated_date = Column(Date, default=datetime.now, onupdate=datetime.now)
-    
-    user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User", back_populates="tastings")
-    whiskey = relationship("Whiskey", back_populates="tastings")
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    whiskey_id: Mapped[int] = mapped_column(ForeignKey("whiskeys.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    tasting_date: Mapped[date] = mapped_column(Date, index=True)
+    rating: Mapped[int] = mapped_column(Integer)  # 1–10
+    color_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    nose_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    palate_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    finish_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    water_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    personal_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    shared: Mapped[bool] = mapped_column(Boolean, default=False)
+    setting: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    created_date: Mapped[date] = mapped_column(Date, default=date.today)
+    updated_date: Mapped[date] = mapped_column(
+        Date, default=date.today, onupdate=date.today
+    )
+
+    user: Mapped["User"] = relationship(back_populates="tastings")
+    whiskey: Mapped["Whiskey"] = relationship(back_populates="tastings")
+
+    def __repr__(self) -> str:
+        return f"<Tasting(id={self.id}, rating={self.rating}, shared={self.shared})>"

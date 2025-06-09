@@ -1,25 +1,41 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Boolean
+from sqlalchemy import DateTime
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.db.database import Base
+
+if TYPE_CHECKING:
+    from app.models.whiskey import Whiskey
+
 
 class Distillery(Base):
     __tablename__ = "distilleries"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, unique=True, nullable=False)
-    region = Column(String, nullable=True)
-    country = Column(String, nullable=True)
-    description = Column(Text, nullable=True)
-    image_url = Column(String, nullable=True)
-    website = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True) # Is the distillery still operational?
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False)
+    region: Mapped[str | None] = mapped_column(String, nullable=True)
+    country: Mapped[str | None] = mapped_column(String, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    website: Mapped[str | None] = mapped_column(String, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    # Relationship: A distillery can produce many whiskeys (one-to-many)
-    # whiskeys = relationship("Whiskey", back_populates="distillery_info") # You'd need to add 'distillery_info' to Whiskey model
+    created_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now()
+    )
 
-    created_date = Column(DateTime(timezone=True), server_default=func.now())
-    updated_date = Column(DateTime(timezone=True), onupdate=func.now())
+    whiskeys: Mapped[list["Whiskey"]] = relationship(back_populates="distillery_info")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Distillery(id={self.id}, name='{self.name}')>"

@@ -1,23 +1,39 @@
-// Frontend/src/pages/TastingDetailPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 import TastingForm from '@/components/tasting/TastingForm';
 
-import { ArrowLeft, Edit3, Star, CalendarDays, Palette, MessageSquare, FileText, Tag, Trash2, Share2, Eye } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit3,
+  Star,
+  CalendarDays,
+  Palette,
+  MessageSquare,
+  FileText,
+  Tag,
+  Trash2,
+  Share2,
+  Eye,
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 // --- Mock API functions - replace with actual API calls ---
-const fetchTastingByIdApi = async (tastingId) => {
-  return new Promise((resolve, reject) => {
+const fetchTastingByIdApi = async (tastingId) =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
       const mockTastings = {
-        't1': {
+        t1: {
           id: 't1',
           whiskey_id: 'w1',
           whiskeyName: 'Lagavulin 16 Year Old', // Added whiskey name for example
@@ -27,17 +43,23 @@ const fetchTastingByIdApi = async (tastingId) => {
           glassware: 'גלנקיירן (Glencairn)',
           color: 'ענבר עמוק',
           nose_notes: ['כבול', 'עשן מדורה', 'מלח ים', 'אצות', 'צימוקים'],
-          nose_manual: 'ריח עשיר ומורכב, מעושן מאוד אך לא אגרסיבי. מתיקות פירותית מתחת לעשן.',
+          nose_manual:
+            'ריח עשיר ומורכב, מעושן מאוד אך לא אגרסיבי. מתיקות פירותית מתחת לעשן.',
           palate_notes: ['שוקולד מריר', 'פלפל שחור', 'תאנים', 'עור', 'מאלט'],
-          palate_manual: 'טעם מלא וסמיך. הכבול משתלב היטב עם מתיקות עדינה ורמזים של תבלינים.',
+          palate_manual:
+            'טעם מלא וסמיך. הכבול משתלב היטב עם מתיקות עדינה ורמזים של תבלינים.',
           finish_notes: ['ארוכה', 'חמימה', 'מעושנת', 'מתובלת'],
-          finish_manual: 'סיומת ארוכה מאוד, משאירה טעם מעושן ונעים עם חמימות מתפשטת.',
-          overall_impression: 'טעימה פשוט פנומנלית. הוויסקי הזה אף פעם לא מאכזב. כל לגימה היא חוויה.',
-          image_url: 'https://via.placeholder.com/400/A0522D/FFFFFF?text=Tasting+Details',
+          finish_manual:
+            'סיומת ארוכה מאוד, משאירה טעם מעושן ונעים עם חמימות מתפשטת.',
+          overall_impression:
+            'טעימה פשוט פנומנלית. הוויסקי הזה אף פעם לא מאכזב. כל לגימה היא חוויה.',
+          image_url:
+            'https://via.placeholder.com/400/A0522D/FFFFFF?text=Tasting+Details',
           created_at: '2024-07-15T20:00:00Z',
-          updated_at: '2024-07-15T20:00:00Z'
+          updated_at: '2024-07-15T20:00:00Z',
         },
-        't2': { // Another example tasting
+        t2: {
+          // Another example tasting
           id: 't2',
           whiskey_id: 'w2',
           whiskeyName: 'Glenfiddich 12 Year Old',
@@ -49,8 +71,9 @@ const fetchTastingByIdApi = async (tastingId) => {
           nose_notes: ['תפוח ירוק', 'אגס', 'פרחוני', 'דבש'],
           palate_notes: ['דבש', 'וניל', 'אלון קלוי', 'פירות הדר'],
           finish_notes: ['בינונית', 'נקייה', 'מתוקה'],
-          overall_impression: 'ויסקי נעים וקליל, טוב ליומיום. לא מורכב מדי אבל מספק.',
-        }
+          overall_impression:
+            'ויסקי נעים וקליל, טוב ליומיום. לא מורכב מדי אבל מספק.',
+        },
       };
       const tasting = mockTastings[tastingId];
       if (tasting) {
@@ -60,30 +83,31 @@ const fetchTastingByIdApi = async (tastingId) => {
       }
     }, 500);
   });
-};
 
-const updateTastingApi = async (tastingId, tastingData) => {
-  return new Promise(resolve => {
+const updateTastingApi = async (tastingId, tastingData) =>
+  new Promise((resolve) => {
     setTimeout(() => {
-      const updatedTasting = { ...tastingData, id: tastingId, updated_at: new Date().toISOString() };
-      console.log("Tasting updated (mock):", updatedTasting);
+      const updatedTasting = {
+        ...tastingData,
+        id: tastingId,
+        updated_at: new Date().toISOString(),
+      };
+      console.log('Tasting updated (mock):', updatedTasting);
       resolve(updatedTasting);
     }, 800);
   });
-};
 
-const deleteTastingApi = async (tastingId) => {
-  return new Promise(resolve => {
+const deleteTastingApi = async (tastingId) =>
+  new Promise((resolve) => {
     setTimeout(() => {
-      console.log("Tasting deleted (mock):", tastingId);
+      console.log('Tasting deleted (mock):', tastingId);
       resolve(true);
     }, 600);
   });
-};
 
 // Function to fetch all whiskeys from the collection (for the edit form dropdown)
-const fetchWhiskeysForDropdownApi = async () => {
-  return new Promise(resolve => {
+const fetchWhiskeysForDropdownApi = async () =>
+  new Promise((resolve) => {
     setTimeout(() => {
       resolve([
         { id: 'w1', name: 'Lagavulin 16 Year Old' },
@@ -93,11 +117,9 @@ const fetchWhiskeysForDropdownApi = async () => {
       ]);
     }, 300);
   });
-};
 // --- End mock API functions ---
 
-
-export default function TastingDetailPage() {
+const TastingDetailPage = () => {
   const { tastingId } = useParams();
   const navigate = useNavigate();
   // const { user } = useAuth(); // For specific permissions check
@@ -124,10 +146,9 @@ export default function TastingDetailPage() {
         // Load whiskey list for the edit form
         const whiskeysData = await fetchWhiskeysForDropdownApi();
         setWhiskeysForForm(whiskeysData);
-
       } catch (err) {
-        console.error("Error loading tasting data:", err);
-        setError(err.message || "Error loading tasting details.");
+        console.error('Error loading tasting data:', err);
+        setError(err.message || 'Error loading tasting details.');
       } finally {
         setLoading(false);
       }
@@ -150,12 +171,17 @@ export default function TastingDetailPage() {
     try {
       const updatedTasting = await updateTastingApi(tastingId, tastingData);
       // Update whiskey name if changed in the form
-      const selectedWhiskey = whiskeysForForm.find(w => w.id === updatedTasting.whiskey_id);
-      setTasting({ ...updatedTasting, whiskeyName: selectedWhiskey ? selectedWhiskey.name : 'Unknown Whiskey' });
+      const selectedWhiskey = whiskeysForForm.find(
+        (w) => w.id === updatedTasting.whiskey_id,
+      );
+      setTasting({
+        ...updatedTasting,
+        whiskeyName: selectedWhiskey ? selectedWhiskey.name : 'Unknown Whiskey',
+      });
       setShowEditDialog(false);
     } catch (err) {
-      console.error("Error updating tasting:", err);
-      setError(err.message || "Error updating tasting.");
+      console.error('Error updating tasting:', err);
+      setError(err.message || 'Error updating tasting.');
     } finally {
       setIsSubmitting(false);
     }
@@ -163,15 +189,19 @@ export default function TastingDetailPage() {
 
   // Handler to delete a tasting
   const handleDeleteTasting = async () => {
-    if (!window.confirm(`Are you sure you want to delete this tasting of ${tasting?.whiskeyName || 'the whiskey'}?`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this tasting of ${tasting?.whiskeyName || 'the whiskey'}?`,
+      )
+    ) {
       return;
     }
     try {
       await deleteTastingApi(tastingId);
       navigate('/tastings'); // Redirect to tastings list
     } catch (err) {
-      console.error("Error deleting tasting:", err);
-      alert(err.message || "Error deleting tasting.");
+      console.error('Error deleting tasting:', err);
+      alert(err.message || 'Error deleting tasting.');
     }
   };
 
@@ -203,18 +233,25 @@ export default function TastingDetailPage() {
     if (!selectedNotes?.length && !manualNotes) return null;
     return (
       <div>
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          {title}
+        </h3>
         {selectedNotes?.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
-            {selectedNotes.map((note, index) => (
-              <span key={index} className="px-2 py-1 bg-sky-100 text-sky-700 dark:bg-sky-800/50 dark:text-sky-300 rounded-full text-xs">
+            {selectedNotes.map((note) => (
+              <span
+                key={note}
+                className="px-2 py-1 bg-sky-100 text-sky-700 dark:bg-sky-800/50 dark:text-sky-300 rounded-full text-xs"
+              >
                 {note}
               </span>
             ))}
           </div>
         )}
         {manualNotes && (
-          <p className="text-gray-600 dark:text-gray-400 text-sm italic whitespace-pre-wrap">{manualNotes}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm italic whitespace-pre-wrap">
+            {manualNotes}
+          </p>
         )}
       </div>
     );
@@ -223,7 +260,10 @@ export default function TastingDetailPage() {
   // Render loading spinner
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
+      <div
+        className="flex justify-center items-center min-h-[calc(100vh-200px)]"
+        dir="rtl"
+      >
         <LoadingSpinner size="lg" message="Loading tasting details..." />
       </div>
     );
@@ -259,31 +299,53 @@ export default function TastingDetailPage() {
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6" dir="rtl">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="self-start sm:self-center">
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outline"
+          size="sm"
+          className="self-start sm:self-center"
+        >
           <ArrowLeft className="ml-2 rtl:mr-2 h-4 w-4" />
           Back
         </Button>
         <div className="text-center sm:text-right rtl:sm:text-left flex-grow">
           <h1 className="text-2xl sm:text-3xl font-bold text-sky-700 dark:text-sky-300">
-            Tasting of: <Link to={`/collection/${tasting.whiskey_id}`} className="hover:underline">{tasting.whiskeyName || 'Unknown Whiskey'}</Link>
+            Tasting of:{' '}
+            <Link
+              to={`/collection/${tasting.whiskey_id}`}
+              className="hover:underline"
+            >
+              {tasting.whiskeyName || 'Unknown Whiskey'}
+            </Link>
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             <CalendarDays className="inline-block h-4 w-4 ml-1 rtl:mr-1 rtl:ml-0" />
-            {new Date(tasting.tasting_date).toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })}
+            {new Date(tasting.tasting_date).toLocaleDateString('he-IL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
             {tasting.setting && ` | ${tasting.setting}`}
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center">
-            <Button onClick={handleShare} variant="ghost" size="icon" className="text-gray-500 hover:text-sky-600">
-                <Share2 className="h-5 w-5" />
-                <span className="sr-only">Share</span>
-            </Button>
-            {tasting.rating && (
-                <div className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 rounded-md">
-                    <Star className="h-5 w-5 fill-current" />
-                    <span className="font-bold text-lg">{tasting.rating.toFixed(1)}/5</span>
-                </div>
-            )}
+          <Button
+            onClick={handleShare}
+            variant="ghost"
+            size="icon"
+            className="text-gray-500 hover:text-sky-600"
+          >
+            <Share2 className="h-5 w-5" />
+            <span className="sr-only">Share</span>
+          </Button>
+          {tasting.rating && (
+            <div className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 rounded-md">
+              <Star className="h-5 w-5 fill-current" />
+              <span className="font-bold text-lg">
+                {tasting.rating.toFixed(1)}/5
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -310,23 +372,35 @@ export default function TastingDetailPage() {
                 <FileText className="h-16 w-16 text-gray-400 dark:text-gray-500" />
               </div>
             )}
-             <div className="space-y-2">
-                <Button onClick={handleEditTasting} variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                  <Edit3 className="ml-2 rtl:mr-2 h-4 w-4" />
-                  Edit Tasting
+            <div className="space-y-2">
+              <Button
+                onClick={handleEditTasting}
+                variant="outline"
+                className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                <Edit3 className="ml-2 rtl:mr-2 h-4 w-4" />
+                Edit Tasting
+              </Button>
+              {tasting.whiskey_id && (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  <Link to={`/collection/${tasting.whiskey_id}`}>
+                    <Eye className="ml-2 rtl:mr-2 h-4 w-4" />
+                    View Whiskey
+                  </Link>
                 </Button>
-                {tasting.whiskey_id &&
-                    <Button asChild variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                        <Link to={`/collection/${tasting.whiskey_id}`}>
-                            <Eye className="ml-2 rtl:mr-2 h-4 w-4" />
-                            View Whiskey
-                        </Link>
-                    </Button>
-                }
-                <Button onClick={handleDeleteTasting} variant="destructive-outline" className="w-full">
-                  <Trash2 className="ml-2 rtl:mr-2 h-4 w-4" />
-                  Delete Tasting
-                </Button>
+              )}
+              <Button
+                onClick={handleDeleteTasting}
+                variant="destructive-outline"
+                className="w-full"
+              >
+                <Trash2 className="ml-2 rtl:mr-2 h-4 w-4" />
+                Delete Tasting
+              </Button>
             </div>
           </div>
 
@@ -338,22 +412,38 @@ export default function TastingDetailPage() {
                   <Palette className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
                   Color
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">{tasting.color}</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {tasting.color}
+                </p>
               </div>
             )}
             {tasting.glassware && (
-                <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        <Tag className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
-                        Glassware
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">{tasting.glassware}</p>
-                </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  <Tag className="inline-block h-5 w-5 ml-2 rtl:mr-2 text-sky-600 dark:text-sky-400" />
+                  Glassware
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {tasting.glassware}
+                </p>
+              </div>
             )}
 
-            {renderTastingNotesSection("Nose", tasting.nose_notes, tasting.nose_manual)}
-            {renderTastingNotesSection("Palate", tasting.palate_notes, tasting.palate_manual)}
-            {renderTastingNotesSection("Finish", tasting.finish_notes, tasting.finish_manual)}
+            {renderTastingNotesSection(
+              'Nose',
+              tasting.nose_notes,
+              tasting.nose_manual,
+            )}
+            {renderTastingNotesSection(
+              'Palate',
+              tasting.palate_notes,
+              tasting.palate_manual,
+            )}
+            {renderTastingNotesSection(
+              'Finish',
+              tasting.finish_notes,
+              tasting.finish_manual,
+            )}
 
             {tasting.overall_impression && (
               <div>
@@ -374,9 +464,11 @@ export default function TastingDetailPage() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-[700px]" dir="rtl">
           <DialogHeader>
-            <DialogTitle>Edit Tasting of {tasting.whiskeyName}</DialogTitle>
+            <DialogTitle>
+              Edit Tasting of {tasting.whiskeyName}&apos;s
+            </DialogTitle>
             <DialogDescription>
-              Update tasting details here. Click save when you're done.
+              Update tasting details here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
           <TastingForm
@@ -390,4 +482,6 @@ export default function TastingDetailPage() {
       </Dialog>
     </div>
   );
-}
+};
+
+export default TastingDetailPage;

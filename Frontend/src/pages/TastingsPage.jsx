@@ -1,24 +1,38 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Ensure correct path to AuthContext
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // Import tasting and whiskey components
+import {
+  PlusCircle,
+  Search,
+  Filter,
+  X,
+  SlidersHorizontal,
+  Star,
+  CalendarDays,
+} from 'lucide-react';
 import TastingList from '../components/tasting/TastingList';
 import TastingForm from '../components/tasting/TastingForm';
 // import { fetchWhiskeysForDropdown } from '../services/api'; // Or similar function for actual API calls
 
 // Import icons from lucide-react
-import { PlusCircle, Search, Filter, X, SlidersHorizontal, Star, CalendarDays } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext'; // Ensure correct path to AuthContext
 
 // --- Mock API functions - Replace with your actual API calls ---
-const fetchWhiskeysForDropdownApi = async () => {
-  return new Promise(resolve => {
+const fetchWhiskeysForDropdownApi = async () =>
+  new Promise((resolve) => {
     setTimeout(() => {
       resolve([
         { id: 'w1', name: 'Lagavulin 16 Year Old' },
@@ -29,10 +43,14 @@ const fetchWhiskeysForDropdownApi = async () => {
       ]);
     }, 300);
   });
-};
 
-const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', page = 1, limit = 15) => {
-  return new Promise(resolve => {
+const fetchTastingsFromApi = async (
+  filters = {},
+  sortBy = 'tasting_date_desc',
+  page = 1,
+  limit = 15,
+) =>
+  new Promise((resolve) => {
     setTimeout(() => {
       const mockTastings = [
         {
@@ -45,7 +63,8 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
           nose_notes: ['Peat', 'Bonfire smoke', 'Sea salt'],
           palate_notes: ['Dark chocolate', 'Black pepper', 'Figs'],
           finish_notes: ['Long', 'Warm', 'Smoky'],
-          image_url: 'https://via.placeholder.com/150/A0522D/FFFFFF?text=Tasting1'
+          image_url:
+            'https://via.placeholder.com/150/A0522D/FFFFFF?text=Tasting1',
         },
         {
           id: 't2',
@@ -63,12 +82,14 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
           whiskey_id: 'w4', // Linked to Yamazaki
           rating: 5,
           tasting_date: '2024-05-01',
-          notes: 'Very complex, tropical fruits, delicate spices, Japanese oak (Mizunara). Simply excellent.',
+          notes:
+            'Very complex, tropical fruits, delicate spices, Japanese oak (Mizunara). Simply excellent.',
           color: 'Deep gold',
           nose_notes: ['Pineapple', 'Coconut', 'Incense'],
           palate_notes: ['Apricot', 'Vanilla', 'Nutmeg', 'Mizunara oak'],
           finish_notes: ['Very long', 'Spicy', 'Fruity'],
-          image_url: 'https://via.placeholder.com/150/B8860B/FFFFFF?text=TastingYam'
+          image_url:
+            'https://via.placeholder.com/150/B8860B/FFFFFF?text=TastingYam',
         },
       ];
 
@@ -76,24 +97,34 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
         // You'll need to link to whiskeyName here if it's available, or filter only by notes
-        filteredTastings = filteredTastings.filter(t =>
-          t.notes?.toLowerCase().includes(searchLower)
+        filteredTastings = filteredTastings.filter(
+          (t) => t.notes?.toLowerCase().includes(searchLower),
           // Or (whiskeyMap[t.whiskey_id]?.name.toLowerCase().includes(searchLower))
         );
       }
       if (filters.whiskey_id && filters.whiskey_id !== 'all') {
-        filteredTastings = filteredTastings.filter(t => t.whiskey_id === filters.whiskey_id);
+        filteredTastings = filteredTastings.filter(
+          (t) => t.whiskey_id === filters.whiskey_id,
+        );
       }
       if (filters.min_rating && filters.min_rating !== 'all') {
-        filteredTastings = filteredTastings.filter(t => t.rating >= parseFloat(filters.min_rating));
+        filteredTastings = filteredTastings.filter(
+          (t) => t.rating >= parseFloat(filters.min_rating),
+        );
       }
 
       filteredTastings.sort((a, b) => {
         switch (sortBy) {
           case 'tasting_date_desc':
-            return new Date(b.tasting_date).getTime() - new Date(a.tasting_date).getTime();
+            return (
+              new Date(b.tasting_date).getTime() -
+              new Date(a.tasting_date).getTime()
+            );
           case 'tasting_date_asc':
-            return new Date(a.tasting_date).getTime() - new Date(b.tasting_date).getTime();
+            return (
+              new Date(a.tasting_date).getTime() -
+              new Date(b.tasting_date).getTime()
+            );
           case 'rating_desc':
             return (b.rating || 0) - (a.rating || 0);
           case 'rating_asc':
@@ -109,40 +140,38 @@ const fetchTastingsFromApi = async (filters = {}, sortBy = 'tasting_date_desc', 
       });
     }, 700);
   });
-};
 
-const saveTastingToApi = async (tastingData) => {
-  return new Promise(resolve => {
+const saveTastingToApi = async (tastingData) =>
+  new Promise((resolve) => {
     setTimeout(() => {
-      const savedTasting = { ...tastingData, id: 't' + Math.random().toString(36).substring(7) };
-      console.log("Tasting saved (mock):", savedTasting);
+      const savedTasting = {
+        ...tastingData,
+        id: `t${Math.random().toString(36).substring(7)}`,
+      };
+      console.log('Tasting saved (mock):', savedTasting);
       resolve(savedTasting);
     }, 900);
   });
-};
 
-const updateTastingInApi = async (tastingId, tastingData) => {
-  return new Promise(resolve => {
+const updateTastingInApi = async (tastingId, tastingData) =>
+  new Promise((resolve) => {
     setTimeout(() => {
       const updatedTasting = { ...tastingData, id: tastingId };
-      console.log("Tasting updated (mock):", updatedTasting);
+      console.log('Tasting updated (mock):', updatedTasting);
       resolve(updatedTasting);
     }, 750);
   });
-};
 
-const deleteTastingFromApi = async (tastingId) => {
-  return new Promise(resolve => {
+const deleteTastingFromApi = async (tastingId) =>
+  new Promise((resolve) => {
     setTimeout(() => {
-      console.log("Tasting deleted (mock):", tastingId);
+      console.log('Tasting deleted (mock):', tastingId);
       resolve(true);
     }, 450);
   });
-};
 // --- End of mock API functions ---
 
-
-export default function TastingsPage() {
+const TastingsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -167,7 +196,6 @@ export default function TastingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false); // Indicates if form is currently submitting
   const [preselectedWhiskeyId, setPreselectedWhiskeyId] = useState(null); // Pre-selects a whiskey in the form, often from a URL param
 
-
   // Effect to load whiskeys for filter and form dropdowns on component mount
   useEffect(() => {
     const loadWhiskeys = async () => {
@@ -175,16 +203,18 @@ export default function TastingsPage() {
         const fetchedWhiskeys = await fetchWhiskeysForDropdownApi();
         setWhiskeysForFilter(fetchedWhiskeys || []);
         const map = {};
-        (fetchedWhiskeys || []).forEach(w => { map[w.id] = w.name; });
+        (fetchedWhiskeys || []).forEach((w) => {
+          map[w.id] = w.name;
+        });
         setWhiskeyMap(map);
       } catch (err) {
-        console.error("Error fetching whiskeys for filter:", err);
-        setError("Error loading whiskey list for filters.");
+        console.error('Error fetching whiskeys for filter:', err);
+        setError('Error loading whiskey list for filters.');
       }
     };
     loadWhiskeys();
   }, []);
-  
+
   // Function to load tastings from the API based on current filters and sort order
   const loadTastings = async () => {
     setLoading(true);
@@ -198,8 +228,8 @@ export default function TastingsPage() {
       const result = await fetchTastingsFromApi(filters, sortBy);
       setTastings(result.tastings);
     } catch (err) {
-      console.error("Error loading tastings:", err);
-      setError("Error loading tasting log.");
+      console.error('Error loading tastings:', err);
+      setError('Error loading tasting log.');
     } finally {
       setLoading(false);
     }
@@ -209,7 +239,7 @@ export default function TastingsPage() {
   useEffect(() => {
     // Only load tastings after the whiskey map is available, or if there are no whiskeys
     if (Object.keys(whiskeyMap).length > 0 || whiskeysForFilter.length === 0) {
-        loadTastings();
+      loadTastings();
     }
   }, [searchTerm, selectedWhiskeyFilter, minRatingFilter, sortBy, whiskeyMap]);
 
@@ -249,18 +279,18 @@ export default function TastingsPage() {
 
   // Event handler to delete a tasting
   const handleDeleteTasting = async (tastingId) => {
-    if (!window.confirm("Are you sure you want to delete this tasting?")) {
+    if (!window.confirm('Are you sure you want to delete this tasting?')) {
       return;
     }
     try {
       await deleteTastingFromApi(tastingId);
       await loadTastings(); // Refresh the tasting list after deletion
     } catch (err) {
-      console.error("Error deleting tasting:", err);
-      alert(err.message || "Error deleting the tasting.");
+      console.error('Error deleting tasting:', err);
+      alert(err.message || 'Error deleting the tasting.');
     }
   };
-  
+
   // Event handler to navigate to tasting details page
   const handleViewTastingDetails = (tastingId) => {
     navigate(`/tastings/${tastingId}`);
@@ -285,8 +315,8 @@ export default function TastingsPage() {
       setSearchParams(newParams);
       await loadTastings(); // Refresh the tasting list after saving
     } catch (err) {
-      console.error("Error saving tasting:", err);
-      setError(err.message || "Error saving the tasting.");
+      console.error('Error saving tasting:', err);
+      setError(err.message || 'Error saving the tasting.');
       // Keep the dialog open for the user to see the error message
     } finally {
       setIsSubmitting(false);
@@ -305,7 +335,7 @@ export default function TastingsPage() {
     newParams.delete('whiskeyId');
     setSearchParams(newParams);
   };
-  
+
   // Function to clear all applied filters
   const clearFilters = () => {
     setSearchTerm('');
@@ -315,17 +345,24 @@ export default function TastingsPage() {
   };
 
   // Check if any filters are currently active
-  const hasActiveFilters = searchTerm || selectedWhiskeyFilter !== 'all' || minRatingFilter !== 'all';
+  const hasActiveFilters =
+    searchTerm || selectedWhiskeyFilter !== 'all' || minRatingFilter !== 'all';
 
   // Helper function to get whiskey name by ID from the map
-  const getWhiskeyNameById = (whiskeyId) => {
-    return whiskeyMap[whiskeyId] || 'Unknown Whiskey';
-  };
+  const getWhiskeyNameById = (whiskeyId) =>
+    whiskeyMap[whiskeyId] || 'Unknown Whiskey';
 
   // Show a loading spinner if data is being fetched initially
-  if (loading && tastings.length === 0 && Object.keys(whiskeyMap).length === 0) {
+  if (
+    loading &&
+    tastings.length === 0 &&
+    Object.keys(whiskeyMap).length === 0
+  ) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
+      <div
+        className="flex justify-center items-center min-h-[calc(100vh-200px)]"
+        dir="rtl"
+      >
         <LoadingSpinner size="lg" message="Loading tasting log..." />
       </div>
     );
@@ -343,7 +380,10 @@ export default function TastingsPage() {
             {tastings.length} documented tastings
           </p>
         </div>
-        <Button onClick={handleAddTasting} className="bg-sky-600 hover:bg-sky-700 text-white">
+        <Button
+          onClick={handleAddTasting}
+          className="bg-sky-600 hover:bg-sky-700 text-white"
+        >
           <PlusCircle className="ml-2 rtl:mr-2 h-5 w-5" />
           Add Tasting
         </Button>
@@ -375,34 +415,63 @@ export default function TastingsPage() {
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t dark:border-gray-700">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="whiskey-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Specific Whiskey
               </label>
-              <Select value={selectedWhiskeyFilter} onChange={(e) => setSelectedWhiskeyFilter(e.target.value)}>
+              <Select
+                id="whiskey-filter"
+                value={selectedWhiskeyFilter}
+                onChange={(e) => setSelectedWhiskeyFilter(e.target.value)}
+              >
                 <option value="all">All Whiskeys</option>
-                {whiskeysForFilter.map(w => (
-                  <option key={w.id} value={w.id}>{w.name}</option>
+                {whiskeysForFilter.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
                 ))}
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="min-rating-filter"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Minimum Rating (1-5)
               </label>
-              <Select value={minRatingFilter} onChange={(e) => setMinRatingFilter(e.target.value)}>
+              <Select
+                id="min-rating-filter"
+                value={minRatingFilter}
+                onChange={(e) => setMinRatingFilter(e.target.value)}
+              >
                 <option value="all">All Ratings</option>
-                {[1, 2, 3, 3.5, 4, 4.5, 5].map(r => (
-                  <option key={r} value={r.toString()}>{r}+ stars</option>
+                {[1, 2, 3, 3.5, 4, 4.5, 5].map((r) => (
+                  <option key={r} value={r.toString()}>
+                    {r}+ stars
+                  </option>
                 ))}
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="sort-by"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Sort by
               </label>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="tasting_date_desc">Date (Newest to Oldest)</option>
-                <option value="tasting_date_asc">Date (Oldest to Newest)</option>
+              <Select
+                id="sort-by"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="tasting_date_desc">
+                  Date (Newest to Oldest)
+                </option>
+                <option value="tasting_date_asc">
+                  Date (Oldest to Newest)
+                </option>
                 <option value="rating_desc">Rating (High to Low)</option>
                 <option value="rating_asc">Rating (Low to High)</option>
               </Select>
@@ -412,7 +481,9 @@ export default function TastingsPage() {
 
         {hasActiveFilters && (
           <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700 mt-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Active Filters</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Active Filters
+            </span>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               <X className="ml-1 rtl:mr-1 h-4 w-4" />
               Clear All
@@ -438,7 +509,7 @@ export default function TastingsPage() {
         onViewDetails={handleViewTastingDetails}
         emptyStateMessage={
           hasActiveFilters
-            ? "No tastings found matching the search. Try changing the filters."
+            ? 'No tastings found matching the search. Try changing the filters.'
             : "You haven't logged any tastings yet. Add your first experience!"
         }
         pageNameForAdd="TastingsPage" // Used for an "Add" button within the component if no tastings are present
@@ -450,13 +521,20 @@ export default function TastingsPage() {
           open={showAddDialog} // 'open' prop controls visibility
           onOpenChange={setShowAddDialog} // Callback for when the open state changes (e.g., user clicks outside)
         >
-          <DialogContent className="sm:max-w-[425px] md:max-w-[700px] lg:max-w-[900px]"> {/* Adjust max-width as needed */}
+          {' '}
+          <DialogContent className="sm:max-w-[425px] md:max-w-[700px] lg:max-w-[900px]">
+            {' '}
+            {/* Adjust max-width as needed */}
             <DialogHeader>
               <DialogTitle>
-                {editingTasting ? `Edit Tasting of ${getWhiskeyNameById(editingTasting.whiskey_id)}` : "Add New Tasting"}
+                {editingTasting
+                  ? `Edit Tasting of ${getWhiskeyNameById(editingTasting.whiskey_id)}`
+                  : 'Add New Tasting'}
               </DialogTitle>
               <DialogDescription>
-                {editingTasting ? "Make changes to your tasting details here." : "Fill in the details for your new tasting entry."}
+                {editingTasting
+                  ? 'Make changes to your tasting details here.'
+                  : 'Fill in the details for your new tasting entry.'}
               </DialogDescription>
             </DialogHeader>
             <TastingForm
@@ -473,4 +551,6 @@ export default function TastingsPage() {
       )}
     </div>
   );
-}
+};
+
+export default TastingsPage;

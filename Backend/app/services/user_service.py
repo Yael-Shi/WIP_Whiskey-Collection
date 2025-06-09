@@ -1,29 +1,42 @@
-from sqlalchemy.orm import Session
 from typing import Optional
 
-from app.models.user import User as UserModel
-from app.schemas.user_schema import UserCreate as UserCreateSchema, UserUpdate as UserUpdateSchema
-from app.auth.auth import get_password_hash, verify_password
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-def get_user(db: Session, user_id: int):
+from app.auth.auth import get_password_hash
+from app.auth.auth import verify_password
+from app.models.user import User as UserModel
+from app.schemas.user_schema import UserCreate as UserCreateSchema
+from app.schemas.user_schema import UserUpdate as UserUpdateSchema
+
+
+async def get_user(db: AsyncSession, user_id: int) -> Optional[UserModel]:
     """
     Retrieve a single user by their ID.
     """
-    return db.query(UserModel).filter(UserModel.id == user_id).first()
+    result = await db.execute(select(UserModel).where(UserModel.id == user_id))
+    return result.scalars().first()
 
-def get_user_by_email(db: Session, email: str):
+
+async def get_user_by_email(db: AsyncSession, email: str) -> Optional[UserModel]:
     """
     Retrieve a single user by their email.
     """
-    return db.query(UserModel).filter(UserModel.email == email).first()
+    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    return result.scalars().first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
+
+async def get_users(
+    db: AsyncSession, skip: int = 0, limit: int = 100
+) -> list[UserModel]:
     """
     Retrieve a list of users with pagination.
     """
-    return db.query(UserModel).offset(skip).limit(limit).all()
+    result = await db.execute(select(UserModel).offset(skip).limit(limit))
+    return list(result.scalars().all())
 
-def create_user(db: Session, user: UserCreateSchema):
+
+async def create_user(db: AsyncSession, user: UserCreateSchema) -> UserModel:
     """
     Create a new user.
     Hashes the password before saving.
@@ -33,27 +46,37 @@ def create_user(db: Session, user: UserCreateSchema):
         email=user.email,
         full_name=user.full_name,
         hashed_password=hashed_password,
-        is_active=True
+        is_active=True,
     )
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
-def authenticate_user(db: Session, email: str, password: str):
+
+async def authenticate_user(
+    db: AsyncSession, email: str, password: str
+) -> Optional[UserModel]:
     """
     Authenticates a user by email and password.
     Returns the user object if credentials are valid, False otherwise.
     """
-    user = get_user_by_email(db, email)
+    user = await get_user_by_email(db, email)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.hashed_password):
-        return False
+        return None
     return user
 
-def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -> Optional[UserModel]:
-    db_user = get_user(db, user_id=user_id)
+
+async def update_user(
+    db: AsyncSession, user_id: int, user_update_data: UserUpdateSchema
+) -> Optional[UserModel]:
+    """
+    Update an existing user's details.
+    Handles password hashing if a new password is provided.
+    """
+    db_user = await get_user(db, user_id=user_id)
     if not db_user:
         return None
 
@@ -67,17 +90,15 @@ def update_user(db: Session, user_id: int, user_update_data: UserUpdateSchema) -
     for key, value in update_data.items():
         setattr(db_user, key, value)
 
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
 
-# You can add update_user and delete_user functions here later if needed.
-# For example:
-# def delete_user(db: Session, user_id: int):
-#     db_user = get_user(db, user_id)
-#     if not db_user:
-#         return None # Or raise an exception
-#     db.delete(db_user)
-#     db.commit()
-#     return db_user
+async def delete_user(db: AsyncSession, user_id: int) -> Optional[UserModel]:
+    db_user = await get_user(db, user_id)
+    if not db_user:
+        return None  # Or raise an exception
+    await db.delete(db_user)
+    await db.commit()
+    return db_user

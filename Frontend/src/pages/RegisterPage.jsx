@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { UserPlus, Mail, Lock, AlertCircle, User, Wine } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
-import { UserPlus, Mail, Lock, AlertCircle, User, Wine } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function RegisterPage() {
+const RegisterPage = () => {
   const navigate = useNavigate();
-  // Destructure 'register' function from useAuth()
-  const { isAuthenticated, loadingAuth, register } = useAuth(); 
+  const { isAuthenticated, loadingAuth, register } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -52,19 +51,20 @@ export default function RegisterPage() {
       setIsSubmitting(false);
       return;
     }
-    
+
     try {
       // Call the 'register' function from AuthContext, which now interacts with your backend API
       const registeredUser = await register({ fullName, email, password });
-      
+
       // Display success message
-      setSuccessMessage(`ההרשמה הצליחה! ברוך הבא, ${registeredUser.full_name || registeredUser.email}. מעביר אותך לדשבורד...`);
+      setSuccessMessage(
+        `ההרשמה הצליחה! ברוך הבא, ${registeredUser.full_name || registeredUser.email}. מעביר אותך לדשבורד...`,
+      );
 
       // The useEffect above will handle navigation to dashboard once isAuthenticated becomes true
       // (which the 'register' function in AuthContext now takes care of after successful login).
-      
     } catch (err) {
-      console.error("Registration failed:", err);
+      console.error('Registration failed:', err);
       // Display error message from the backend or a generic one
       setError(err.message || 'ההרשמה נכשלה. אנא נסה שוב.');
     } finally {
@@ -75,16 +75,25 @@ export default function RegisterPage() {
   // Show loading spinner if authentication state is being determined
   if (loadingAuth && !isAuthenticated) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]" dir="rtl">
+      <div
+        className="flex justify-center items-center min-h-[calc(100vh-200px)]"
+        dir="rtl"
+      >
         <LoadingSpinner size="lg" message="טוען..." />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8" dir="rtl">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8"
+      dir="rtl"
+    >
       <div className="w-full max-w-md">
-        <Link to="/" className="flex justify-center mb-8 text-amber-600 dark:text-amber-400">
+        <Link
+          to="/"
+          className="flex justify-center mb-8 text-amber-600 dark:text-amber-400"
+        >
           <Wine className="h-12 w-12" />
         </Link>
         <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 sm:p-8">
@@ -94,13 +103,16 @@ export default function RegisterPage() {
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-md text-sm text-red-600 dark:text-red-300 flex items-center">
-              <AlertCircle size={18} className="ml-2 rtl:mr-2 rtl:ml-0 flex-shrink-0"/>
+              <AlertCircle
+                size={18}
+                className="ml-2 rtl:mr-2 rtl:ml-0 flex-shrink-0"
+              />
               <span>{error}</span>
             </div>
           )}
           {successMessage && (
-              <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 rounded-md text-sm text-green-700 dark:text-green-300">
-                {successMessage}
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 rounded-md text-sm text-green-700 dark:text-green-300">
+              {successMessage}
             </div>
           )}
 
@@ -113,9 +125,9 @@ export default function RegisterPage() {
                 >
                   שם מלא
                 </label>
-                  <div className="relative">
-                    <User className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
+                <div className="relative">
+                  <User className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
                     type="text"
                     id="fullName"
                     name="fullName"
@@ -125,8 +137,8 @@ export default function RegisterPage() {
                     className="w-full pl-10 rtl:pr-10 rtl:pl-3 dark:bg-gray-700 dark:border-gray-600"
                     placeholder="השם שלך"
                     disabled={isSubmitting}
-                    />
-                  </div>
+                  />
+                </div>
               </div>
 
               <div>
@@ -137,8 +149,8 @@ export default function RegisterPage() {
                   כתובת אימייל
                 </label>
                 <div className="relative">
-                    <Mail className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
+                  <Mail className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
                     type="email"
                     id="email"
                     name="email"
@@ -148,8 +160,8 @@ export default function RegisterPage() {
                     className="w-full pl-10 rtl:pr-10 rtl:pl-3 dark:bg-gray-700 dark:border-gray-600"
                     placeholder="your@email.com"
                     disabled={isSubmitting}
-                    />
-                  </div>
+                  />
+                </div>
               </div>
 
               <div>
@@ -159,9 +171,9 @@ export default function RegisterPage() {
                 >
                   סיסמה
                 </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
+                <div className="relative">
+                  <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
                     type="password"
                     id="password"
                     name="password"
@@ -171,8 +183,8 @@ export default function RegisterPage() {
                     className="w-full pl-10 rtl:pr-10 rtl:pl-3 dark:bg-gray-700 dark:border-gray-600"
                     placeholder="לפחות 6 תווים"
                     disabled={isSubmitting}
-                    />
-                  </div>
+                  />
+                </div>
               </div>
 
               <div>
@@ -182,9 +194,9 @@ export default function RegisterPage() {
                 >
                   אימות סיסמה
                 </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
+                <div className="relative">
+                  <Lock className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
                     type="password"
                     id="confirmPassword"
                     name="confirmPassword"
@@ -194,8 +206,8 @@ export default function RegisterPage() {
                     className="w-full pl-10 rtl:pr-10 rtl:pl-3 dark:bg-gray-700 dark:border-gray-600"
                     placeholder="הקלד שוב את הסיסמה"
                     disabled={isSubmitting}
-                    />
-                  </div>
+                  />
+                </div>
               </div>
 
               <div className="pt-2">
@@ -206,7 +218,11 @@ export default function RegisterPage() {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <LoadingSpinner size="sm" className="ml-2 rtl:mr-2" textColor="text-white"/>
+                    <LoadingSpinner
+                      size="sm"
+                      className="ml-2 rtl:mr-2"
+                      textColor="text-white"
+                    />
                   ) : (
                     <UserPlus className="ml-2 rtl:mr-2 h-5 w-5" />
                   )}
@@ -227,20 +243,33 @@ export default function RegisterPage() {
               </Link>
             </p>
           )}
-            {successMessage && (
-              <div className="mt-6 text-center">
-                <Link to="/login">
-                    <Button variant="outline" className="dark:border-gray-600 dark:text-gray-300">
-                        עבור לדף התחברות
-                    </Button>
-                </Link>
-              </div>
-            )}
+          {successMessage && (
+            <div className="mt-6 text-center">
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="dark:border-gray-600 dark:text-gray-300"
+                >
+                  עבור לדף התחברות
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
-          <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
-            על ידי יצירת חשבון, אתה מסכים ל<Link to="/terms" className="underline hover:text-amber-600">תנאי השימוש</Link> ול<Link to="/privacy" className="underline hover:text-amber-600">מדיניות הפרטיות</Link> שלנו.
+        <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+          על ידי יצירת חשבון, אתה מסכים ל
+          <Link to="/terms" className="underline hover:text-amber-600">
+            תנאי השימוש
+          </Link>{' '}
+          ול
+          <Link to="/privacy" className="underline hover:text-amber-600">
+            מדיניות הפרטיות
+          </Link>{' '}
+          שלנו.
         </p>
       </div>
     </div>
   );
-}
+};
+
+export default RegisterPage;

@@ -1,90 +1,87 @@
 {
-    "name": "Whiskey",
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "שם הוויסקי"
-      },
-      "distillery": {
-        "type": "string",
-        "description": "המזקקה"
-      },
-      "region": {
-        "type": "string",
-        "enum": [
-          "סקוטלנד - היילנדס",
-          "סקוטלנד - איילה",
-          "סקוטלנד - ספייסייד",
-          "סקוטלנד - לוולנדס",
-          "סקוטלנד - איים",
-          "אירלנד",
-          "ארה״ב",
-          "יפן",
-          "קנדה",
-          "אחר"
-        ],
-        "description": "אזור הייצור"
-      },
-      "age": {
-        "type": "number",
-        "description": "גיל הוויסקי (בשנים)"
-      },
-      "type": {
-        "type": "string",
-        "enum": [
-          "סינגל מאלט",
-          "בלנדד מאלט",
-          "בלנדד",
-          "בורבון",
-          "איירש",
-          "רוחניק",
-          "אחר"
-        ],
-        "description": "סוג הוויסקי"
-      },
-      "abv": {
-        "type": "number",
-        "description": "אחוז אלכוהול"
-      },
-      "price": {
-        "type": "number",
-        "description": "מחיר הבקבוק (ש״ח)"
-      },
-      "purchase_date": {
-        "type": "string",
-        "format": "date",
-        "description": "תאריך הרכישה"
-      },
-      "bottle_size": {
-        "type": "number",
-        "description": "גודל הבקבוק (מ״ל)"
-      },
-      "bottle_status": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 100,
-        "description": "כמה נשאר בבקבוק (אחוזים)"
-      },
-      "notes": {
-        "type": "string",
-        "description": "הערות כלליות"
-      },
-      "image_url": {
-        "type": "string",
-        "description": "קישור לתמונה של הבקבוק"
-      },
-      "is_favorite": {
-        "type": "boolean",
-        "description": "האם מועדף"
-      },
-      "public_notes": {
-        "type": "boolean",
-        "description": "האם המידע גלוי לחברים"
-      }
+  "name": "Whiskey",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "שם הוויסקי"
     },
-    "required": [
-      "name",
-      "distillery"
-    ]
-  }
+    "distillery": {
+      "type": "string",
+      "description": "המזקקה"
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "סקוטלנד - היילנדס",
+        "סקוטלנד - איילה",
+        "סקוטלנד - ספייסייד",
+        "סקוטלנד - לוולנדס",
+        "סקוטלנד - איים",
+        "אירלנד",
+        "ארה״ב",
+        "יפן",
+        "קנדה",
+        "אחר"
+      ],
+      "description": "אזור הייצור"
+    },
+    "age": {
+      "type": "number",
+      "description": "גיל הוויסקי (בשנים)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "סינגל מאלט",
+        "בלנדד מאלט",
+        "בלנדד",
+        "בורבון",
+        "איירש",
+        "רוחניק",
+        "אחר"
+      ],
+      "description": "סוג הוויסקי"
+    },
+    "abv": {
+      "type": "number",
+      "description": "אחוז אלכוהול"
+    },
+    "price": {
+      "type": "number",
+      "description": "מחיר הבקבוק (ש״ח)"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "תאריך הרכישה"
+    },
+    "bottle_size": {
+      "type": "number",
+      "description": "גודל הבקבוק (מ״ל)"
+    },
+    "bottle_status": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "כמה נשאר בבקבוק (אחוזים)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "הערות כלליות"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "קישור לתמונה של הבקבוק"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "description": "האם מועדף"
+    },
+    "public_notes": {
+      "type": "boolean",
+      "description": "האם המידע גלוי לחברים"
+    }
+  },
+  "required": ["name", "distillery"]
+}

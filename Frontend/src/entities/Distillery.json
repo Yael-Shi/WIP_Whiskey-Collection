@@ -1,43 +1,39 @@
 {
-    "name": "Distillery",
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "שם המזקקה"
-      },
-      "region": {
-        "type": "string",
-        "description": "אזור המזקקה"
-      },
-      "country": {
-        "type": "string",
-        "description": "מדינה"
-      },
-      "founded": {
-        "type": "number",
-        "description": "שנת הקמה"
-      },
-      "description": {
-        "type": "string",
-        "description": "תיאור המזקקה"
-      },
-      "image_url": {
-        "type": "string",
-        "description": "תמונה של המזקקה"
-      },
-      "website": {
-        "type": "string",
-        "description": "אתר המזקקה"
-      },
-      "active": {
-        "type": "boolean",
-        "description": "האם המזקקה פעילה"
-      }
+  "name": "Distillery",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "שם המזקקה"
     },
-    "required": [
-      "name",
-      "region",
-      "country"
-    ]
-  }
+    "region": {
+      "type": "string",
+      "description": "אזור המזקקה"
+    },
+    "country": {
+      "type": "string",
+      "description": "מדינה"
+    },
+    "founded": {
+      "type": "number",
+      "description": "שנת הקמה"
+    },
+    "description": {
+      "type": "string",
+      "description": "תיאור המזקקה"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "תמונה של המזקקה"
+    },
+    "website": {
+      "type": "string",
+      "description": "אתר המזקקה"
+    },
+    "active": {
+      "type": "boolean",
+      "description": "האם המזקקה פעילה"
+    }
+  },
+  "required": ["name", "region", "country"]
+}
