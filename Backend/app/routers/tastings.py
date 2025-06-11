@@ -1,17 +1,24 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.auth import get_current_active_user
 from app.db.database import get_db
 from app.models.tasting import Tasting as TastingModel
 from app.models.user import User
-from app.schemas.tasting_schema import Tasting, TastingCreate, TastingUpdate
-from app.services.tasting_service import (create_tasting, delete_tasting,
-                                          get_tasting, get_tastings_by_user,
-                                          get_tastings_by_whiskey,
-                                          update_tasting)
+from app.schemas.tasting_schema import Tasting
+from app.schemas.tasting_schema import TastingCreate
+from app.schemas.tasting_schema import TastingUpdate
+from app.services.tasting_service import create_tasting
+from app.services.tasting_service import delete_tasting
+from app.services.tasting_service import get_tasting
+from app.services.tasting_service import get_tastings_by_user
+from app.services.tasting_service import get_tastings_by_whiskey
+from app.services.tasting_service import update_tasting
 
 router = APIRouter()
 

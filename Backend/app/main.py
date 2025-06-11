@@ -13,7 +13,11 @@ from fastapi.responses import JSONResponse
 
 from app.db.database import init_db
 from app.models import *
-from app.routers import auth, distilleries, tastings, users, whiskeys
+from app.routers import auth
+from app.routers import distilleries
+from app.routers import tastings
+from app.routers import users
+from app.routers import whiskeys
 
 
 @asynccontextmanager

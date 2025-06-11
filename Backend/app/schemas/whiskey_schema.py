@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import date
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -6,6 +7,7 @@ from pydantic import BaseModel
 
 class WhiskeyBase(BaseModel):
     """Base whiskey schema with common attributes"""
+
     name: str
     distillery: str
     region: Optional[str] = None
@@ -23,11 +25,13 @@ class WhiskeyBase(BaseModel):
 
 class WhiskeyCreate(WhiskeyBase):
     """Schema for creating a new whiskey"""
+
     pass
 
 
 class WhiskeyUpdate(BaseModel):
     """Schema for updating an existing whiskey"""
+
     name: Optional[str] = None
     distillery: Optional[str] = None
     region: Optional[str] = None
@@ -45,6 +49,7 @@ class WhiskeyUpdate(BaseModel):
 
 class Whiskey(WhiskeyBase):
     """Schema for a complete whiskey with all attributes"""
+
     id: int
     owner_id: int
     created_date: datetime
@@ -52,4 +57,5 @@ class Whiskey(WhiskeyBase):
 
     class Config:
         """Configure Pydantic to parse obj to JSON"""
+
         from_attributes = True

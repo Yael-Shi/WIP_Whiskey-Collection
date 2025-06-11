@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from app.auth.auth import get_password_hash, verify_password
+from app.auth.auth import get_password_hash
+from app.auth.auth import verify_password
 from app.models.user import User as UserModel
 from app.schemas.user_schema import UserCreate as UserCreateSchema
 from app.schemas.user_schema import UserUpdate as UserUpdateSchema
