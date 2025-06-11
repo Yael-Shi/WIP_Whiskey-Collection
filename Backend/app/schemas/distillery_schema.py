@@ -1,12 +1,8 @@
 from datetime import datetime
-
-# from typing import List
 from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import HttpUrl
-
-# from app.schemas.whiskey_schema import Whiskey # For nested response if needed
 
 
 class DistilleryBase(BaseModel):
@@ -41,4 +37,6 @@ class Distillery(DistilleryBase):
     # If you want to include whiskeys from this distillery in the response
 
     class Config:
+        from_attributes = True
+
         orm_mode = True

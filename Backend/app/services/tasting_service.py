@@ -14,12 +14,15 @@ async def get_tasting(
 ) -> Optional[TastingModel]:
     """
     Retrieve a single tasting by its ID, ensuring it belongs to the user.
+    Uses FOR UPDATE to lock the row.
     """
     result = await db.execute(
-        select(TastingModel).where(
+        select(TastingModel)
+        .where(
             TastingModel.id == tasting_id,
             TastingModel.user_id == user_id,
         )
+        .with_for_update()
     )
     return result.scalars().first()
 
@@ -70,7 +73,7 @@ async def create_tasting(
     """
     db_tasting = TastingModel(**tasting.dict(), user_id=user_id)
     db.add(db_tasting)
-    await db.commit()
+    await db.flush()
     await db.refresh(db_tasting)
     return db_tasting
 
@@ -94,7 +97,7 @@ async def update_tasting(
     for key, value in update_data.items():
         setattr(db_tasting, key, value)
 
-    await db.commit()
+    await db.flush()
     await db.refresh(db_tasting)
     return db_tasting
 
@@ -112,5 +115,5 @@ async def delete_tasting(
         return None  # Or raise HTTPException
 
     await db.delete(db_tasting)
-    await db.commit()
+    await db.flush()
     return db_tasting

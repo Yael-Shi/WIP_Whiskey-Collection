@@ -58,4 +58,4 @@ class Whiskey(WhiskeyBase):
     class Config:
         """Configure Pydantic to parse obj to JSON"""
 
-        orm_mode = True
+        from_attributes = True

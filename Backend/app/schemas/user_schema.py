@@ -36,6 +36,7 @@ class User(UserBase):
     class Config:
         """Configure Pydantic to parse obj to JSON"""
 
+        from_attributes = True
         orm_mode = True
 
 

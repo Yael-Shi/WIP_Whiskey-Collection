@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -22,7 +20,7 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-) -> Any:
+) -> dict[str, str]:
     """
     Authenticate user and return JWT access token.
     Requires username (email) and password.

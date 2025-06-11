@@ -30,6 +30,9 @@ async def read_tastings(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> List[TastingModel]:
+    """
+    Retrieve all tastings for the current user
+    """
     tastings = await get_tastings_by_user(
         db, user_id=current_user.id, skip=skip, limit=limit
     )

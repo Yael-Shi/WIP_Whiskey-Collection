@@ -82,6 +82,9 @@ async def update_existing_whiskey(
         raise HTTPException(
             status_code=404, detail="Whiskey not found or not authorized"
         )
+        raise HTTPException(
+            status_code=404, detail="Whiskey not found or not authorized"
+        )
     return db_whiskey
 
 
@@ -98,6 +101,9 @@ async def delete_existing_whiskey(
         db, whiskey_id=whiskey_id, owner_id=current_user.id
     )
     if db_whiskey is None:
+        raise HTTPException(
+            status_code=404, detail="Whiskey not found or not authorized"
+        )
         raise HTTPException(
             status_code=404, detail="Whiskey not found or not authorized"
         )

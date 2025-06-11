@@ -14,7 +14,9 @@ async def get_user(db: AsyncSession, user_id: int) -> Optional[UserModel]:
     """
     Retrieve a single user by their ID.
     """
-    result = await db.execute(select(UserModel).where(UserModel.id == user_id))
+    result = await db.execute(
+        select(UserModel).where(UserModel.id == user_id).with_for_update()
+    )
     return result.scalars().first()
 
 
@@ -22,7 +24,9 @@ async def get_user_by_email(db: AsyncSession, email: str) -> Optional[UserModel]
     """
     Retrieve a single user by their email.
     """
-    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    result = await db.execute(
+        select(UserModel).where(UserModel.email == email).limit(1)
+    )
     return result.scalars().first()
 
 
@@ -49,7 +53,7 @@ async def create_user(db: AsyncSession, user: UserCreateSchema) -> UserModel:
         is_active=True,
     )
     db.add(db_user)
-    await db.commit()
+    await db.flush()
     await db.refresh(db_user)
     return db_user
 
@@ -57,10 +61,6 @@ async def create_user(db: AsyncSession, user: UserCreateSchema) -> UserModel:
 async def authenticate_user(
     db: AsyncSession, email: str, password: str
 ) -> Optional[UserModel]:
-    """
-    Authenticates a user by email and password.
-    Returns the user object if credentials are valid, False otherwise.
-    """
     user = await get_user_by_email(db, email)
     if not user:
         return None
@@ -90,7 +90,7 @@ async def update_user(
     for key, value in update_data.items():
         setattr(db_user, key, value)
 
-    await db.commit()
+    await db.flush()
     await db.refresh(db_user)
     return db_user
 
@@ -100,5 +100,5 @@ async def delete_user(db: AsyncSession, user_id: int) -> Optional[UserModel]:
     if not db_user:
         return None  # Or raise an exception
     await db.delete(db_user)
-    await db.commit()
+    await db.flush()
     return db_user

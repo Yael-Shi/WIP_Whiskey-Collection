@@ -12,7 +12,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jose import jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.db.database import get_db
 from app.models.user import User as UserModel
@@ -23,7 +24,6 @@ if not _secret_key:
     raise ValueError("SECRET_KEY environment variable not set")
 
 SECRET_KEY: str = _secret_key
-
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -44,6 +44,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(
     data: dict[str, Any], expires_delta: Optional[timedelta] = None
 ) -> str:
+    """Create a JWT token for given data with optional expiration"""
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -53,8 +54,9 @@ def create_access_token(
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> UserModel:
+    """Decode JWT token and return the authenticated user"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -69,7 +71,10 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = db.query(UserModel).filter(UserModel.email == token_data.email).first()
+    result = await db.execute(
+        select(UserModel).where(UserModel.email == token_data.email)
+    )
+    user = result.scalars().first()
     if user is None:
         raise credentials_exception
 
@@ -79,6 +84,7 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: UserModel = Depends(get_current_user),
 ) -> UserModel:
+    """Ensure the current user is active"""
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user

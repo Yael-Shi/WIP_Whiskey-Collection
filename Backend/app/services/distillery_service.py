@@ -14,9 +14,12 @@ async def get_distillery(
 ) -> Optional[DistilleryModel]:
     """
     Retrieve a single distillery by its ID.
+    Uses FOR UPDATE to ensure safe concurrent access.
     """
     result = await db.execute(
-        select(DistilleryModel).where(DistilleryModel.id == distillery_id)
+        select(DistilleryModel)
+        .where(DistilleryModel.id == distillery_id)
+        .with_for_update()
     )
     return result.scalars().first()
 
@@ -51,7 +54,7 @@ async def create_distillery(
     """
     db_distillery = DistilleryModel(**distillery.dict())
     db.add(db_distillery)
-    await db.commit()
+    await db.flush()
     await db.refresh(db_distillery)
     return db_distillery
 
@@ -70,7 +73,7 @@ async def update_distillery(
     for key, value in update_data.items():
         setattr(db_distillery, key, value)
 
-    await db.commit()
+    await db.flush()
     await db.refresh(db_distillery)
     return db_distillery
 
@@ -80,13 +83,14 @@ async def delete_distillery(
 ) -> Optional[DistilleryModel]:
     """
     Delete a distillery.
+    Note: Consider handling linked whiskeys (e.g., restrict delete or nullify).
+    # TODO: what if whiskeys are linked to this distillery?
+    # want to prevent deletion or handle it - set whiskey.distillery_id to null).
     """
     db_distillery = await get_distillery(db, distillery_id)
     if not db_distillery:
         return None
 
-    # TODO: what if whiskeys are linked to this distillery?
-    # want to prevent deletion or handle it - set whiskey.distillery_id to null).
     await db.delete(db_distillery)
-    await db.commit()
+    await db.flush()
     return db_distillery

@@ -51,4 +51,4 @@ class Tasting(TastingBase):
     class Config:
         """Configure Pydantic to work with ORM"""
 
-        orm_mode = True
+        from_attributes = True

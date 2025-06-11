@@ -3,16 +3,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import asyncio
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any
-from typing import AsyncGenerator
-from typing import Dict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from app.db.database import Base
-from app.db.database import engine
+from app.db.database import init_db
+from app.models import *
 from app.routers import auth
 from app.routers import distilleries
 from app.routers import tastings
@@ -23,16 +23,9 @@ from app.routers import whiskeys
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("Application startup: Starting database table creation...")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("Application startup: database tables created successfully.")
-
+    await init_db()
+    print("Application startup: Database tables created successfully.")
     yield
-
-    # Shutdown: here adding code that runs when closing the app
-    print("Application shutdown: cleaning up resources")
-    # close connections, clean resources
-    # If necessary, you can add asynchronous calls here to close connections.
 
 
 app = FastAPI(
@@ -64,8 +57,10 @@ app.include_router(distilleries.router, prefix="/api", tags=["Distilleries"])
 
 
 @app.get("/")
-def read_root() -> Dict[str, Any]:
-    return {
-        "message": "Welcome to Whiskey Collection API!",
-        "doc_hint": "Visit /docs for API documentation.",
-    }
+async def read_root() -> JSONResponse:
+    return JSONResponse(
+        content={
+            "message": "Welcome to Whiskey Collection API! "
+            "Visit /docs for API documentation."
+        }
+    )
