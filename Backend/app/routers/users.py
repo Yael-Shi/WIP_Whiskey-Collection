@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.auth.auth import (
-    get_current_active_user,  # , get_current_active_superuser 
+    get_current_active_user,  # , get_current_active_superuser
     # Optional for admin routes
 )
 from app.db.database import get_db
@@ -28,7 +28,7 @@ async def read_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    # current_user: UserModel = Depends(get_current_active_superuser) 
+    # current_user: UserModel = Depends(get_current_active_superuser)
     # Example for admin-only
     current_user: UserModel = Depends(
         get_current_active_user
