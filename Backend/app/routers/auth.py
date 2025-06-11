@@ -1,14 +1,8 @@
-from typing import Any
-
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.auth import create_access_token
-from app.auth.auth import get_current_active_user
+from app.auth.auth import create_access_token, get_current_active_user
 from app.db.database import get_db
 from app.schemas import user_schema
 from app.services.user_service import authenticate_user
@@ -22,7 +16,7 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-) -> Any:
+) -> dict[str, str]:
     """
     Authenticate user and return JWT access token.
     Requires username (email) and password.
