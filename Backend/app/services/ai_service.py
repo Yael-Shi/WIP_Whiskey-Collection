@@ -5,12 +5,10 @@ from typing import Dict
 from typing import List
 
 import requests
-from dotenv import load_dotenv
 
 from app.models.tasting import Tasting
 from app.models.whiskey import Whiskey
 
-load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 

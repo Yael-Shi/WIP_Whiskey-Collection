@@ -1,3 +1,8 @@
+# flake8: noqa: E402
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from contextlib import asynccontextmanager
 from typing import Any
 from typing import AsyncGenerator
@@ -17,8 +22,10 @@ from app.routers import whiskeys
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    Base.metadata.create_all(bind=engine)
-    print("Application startup: database tables created")
+    print("Application startup: Starting database table creation...")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    print("Application startup: database tables created successfully.")
 
     yield
 
