@@ -1,4 +1,6 @@
+# flake8: noqa: E402
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from contextlib import asynccontextmanager
@@ -9,8 +11,8 @@ from typing import Dict
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.db.database import Base, engine
-
+from app.db.database import Base
+from app.db.database import engine
 from app.routers import auth
 from app.routers import distilleries
 from app.routers import tastings
