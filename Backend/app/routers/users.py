@@ -5,11 +5,9 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from app.auth.auth import (
-    get_current_active_user,  # , get_current_active_superuser
-    # Optional for admin routes
+    get_current_active_user,  # get_current_active_superuser; Optional for admin
 )
 from app.db.database import get_db
 from app.models.user import User as UserModel
@@ -27,13 +25,13 @@ router = APIRouter()
 async def read_users(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     # current_user: UserModel = Depends(get_current_active_superuser)
     # Example for admin-only
     current_user: UserModel = Depends(
         get_current_active_user
     ),  # For now, allow any active user to see all users
-):
+) -> List[UserModel]:
     """
     Retrieve all users.
     Consider making this an admin-only endpoint in a production environment.

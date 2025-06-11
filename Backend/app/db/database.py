@@ -1,5 +1,5 @@
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -16,7 +16,7 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 Base = declarative_base()
 
 
-async def init_db():
+async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
