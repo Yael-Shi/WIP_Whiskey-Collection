@@ -14,9 +14,12 @@
 # If you run `git rm -r --cached Backend/venv` (see below), it will work.
 Backend/venv/
 Backend/.venv/ # Just in case it's named .venv
-Backend/__pycache__/
-Backend/**/__pycache__/ # ignore __pycache__ in any sub-directory of Backend
-Backend/*.py[cod] # Compiled Python files
+# Backend/__pycache__/
+# Backend/**/__pycache__/
+# Backend/*.py[cod]
+**/__pycache__/
+*.py[cod]
+*.pytest_cache/
 
 # --- Node.js / React / Frontend specific ignores ---
 Frontend/node_modules/

@@ -1,0 +1,84 @@
+.
+├── Dockerfile
+├── components.json
+├── dist
+│   ├── assets
+│   │   ├── index-CF6IMaxY.css
+│   │   └── index-MmGUp-34.js
+│   └── index.html
+├── index.html
+├── jsconfig.json
+├── nginx.conf
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── shadcn-setup.sh
+├── src
+│   ├── App.jsx
+│   ├── Layout.js
+│   ├── components
+│   │   ├── auth
+│   │   │   ├── LoginForm.jsx
+│   │   │   └── RegisterForm.jsx
+│   │   ├── common
+│   │   │   ├── Layout.jsx
+│   │   │   ├── NavBar.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── tasting
+│   │   │   ├── TastingCard.jsx
+│   │   │   ├── TastingDetailView.jsx
+│   │   │   ├── TastingForm.jsx
+│   │   │   └── TastingList.jsx
+│   │   ├── ui
+│   │   │   ├── LoadingSpinner.jsx
+│   │   │   ├── avatar.jsx
+│   │   │   ├── badge.jsx
+│   │   │   ├── button.jsx
+│   │   │   ├── card.jsx
+│   │   │   ├── checkbox.jsx
+│   │   │   ├── dialog.jsx
+│   │   │   ├── dropdown-menu.jsx
+│   │   │   ├── input.jsx
+│   │   │   ├── label.jsx
+│   │   │   ├── select.jsx
+│   │   │   ├── sheet.jsx
+│   │   │   ├── skeleton.jsx
+│   │   │   └── textarea.jsx
+│   │   ├── utils
+│   │   │   └── whiskeyData.js
+│   │   └── whiskey
+│   │       ├── WhiskeyCard.jsx
+│   │       ├── WhiskeyDetailView.jsx
+│   │       ├── WhiskeyForm.jsx
+│   │       └── WhiskeyList.jsx
+│   ├── contexts
+│   │   └── AuthContext.jsx
+│   ├── entities
+│   │   ├── Distillery.json
+│   │   ├── Tasting.json
+│   │   └── Whiskey.json
+│   ├── index.css
+│   ├── lib
+│   │   └── utils.js
+│   ├── main.jsx
+│   ├── pages
+│   │   ├── CollectionPage.jsx
+│   │   ├── DashboardPage.jsx
+│   │   ├── DiscoverPage.jsx
+│   │   ├── HomePage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── NotFoundPage.jsx
+│   │   ├── ProfilePage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── TastingDetailPage.jsx
+│   │   ├── TastingsPage.jsx
+│   │   └── WhiskeyDetailPage.jsx
+│   ├── services
+│   │   └── api.js
+│   └── utils
+│       └── api.js
+├── tailwind.config.js
+├── tree.txt
+├── utils.js
+└── vite.config.js
+
