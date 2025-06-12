@@ -11,6 +11,7 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 if TYPE_CHECKING:
+    from app.models.tasting import Tasting
     from app.models.user import User
     from app.models.whiskey import Whiskey
 
@@ -31,6 +32,7 @@ class UserWhiskey(Base):
 
     whiskey: Mapped["Whiskey"] = relationship(back_populates="user_whiskeys")
     user: Mapped["User"] = relationship(back_populates="user_whiskeys")
+    tastings: Mapped[list["Tasting"]] = relationship(back_populates="user_whiskey")
 
     created_date: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_date: Mapped[datetime | None] = mapped_column(onupdate=func.now())

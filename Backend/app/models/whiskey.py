@@ -18,7 +18,6 @@ from app.db.database import Base
 
 if TYPE_CHECKING:
     from app.models.distillery import Distillery
-    from app.models.tasting import Tasting
     from app.models.user_whiskey import UserWhiskey
 
 
@@ -44,9 +43,6 @@ class Whiskey(Base):
     image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_favorite: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    tastings: Mapped[list["Tasting"]] = relationship(
-        back_populates="whiskey", cascade="all, delete-orphan"
-    )
     distillery_info: Mapped["Distillery"] = relationship(back_populates="whiskeys")
     user_whiskeys: Mapped[list["UserWhiskey"]] = relationship(back_populates="whiskey")
 
