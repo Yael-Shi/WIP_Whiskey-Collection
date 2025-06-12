@@ -12,7 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.db.database import init_db
-from app.models import *
+from app.models.distillery import Distillery
+from app.models.tasting import Tasting
+from app.models.user import User
+from app.models.user_whiskey import UserWhiskey
+from app.models.whiskey import Whiskey
 from app.routers import auth
 from app.routers import distilleries
 from app.routers import tastings
