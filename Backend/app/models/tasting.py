@@ -15,15 +15,15 @@ from app.db.database import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
-    from app.models.whiskey import Whiskey
+    from app.models.user_whiskey import UserWhiskey
 
 
 class Tasting(Base):
     __tablename__ = "tastings"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    whiskey_id: Mapped[int] = mapped_column(ForeignKey("whiskeys.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_whiskey_id: Mapped[int] = mapped_column(ForeignKey("user_whiskeys.id"))
 
     tasting_date: Mapped[date] = mapped_column(Date, index=True)
     rating: Mapped[int] = mapped_column(Integer)  # 1–10
@@ -42,7 +42,7 @@ class Tasting(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="tastings")
-    whiskey: Mapped["Whiskey"] = relationship(back_populates="tastings")
+    user_whiskey: Mapped["UserWhiskey"] = relationship(back_populates="tastings")
 
     def __repr__(self) -> str:
         return f"<Tasting(id={self.id}, rating={self.rating}, shared={self.shared})>"

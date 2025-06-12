@@ -17,7 +17,7 @@ from app.services.tasting_service import create_tasting
 from app.services.tasting_service import delete_tasting
 from app.services.tasting_service import get_tasting
 from app.services.tasting_service import get_tastings_by_user
-from app.services.tasting_service import get_tastings_by_whiskey
+from app.services.tasting_service import get_tastings_by_user_whiskey
 from app.services.tasting_service import update_tasting
 
 router = APIRouter()
@@ -30,30 +30,26 @@ async def read_tastings(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> List[TastingModel]:
-    """
-    Retrieve all tastings for the current user
-    """
-    tastings = await get_tastings_by_user(
+    return await get_tastings_by_user(
         db, user_id=current_user.id, skip=skip, limit=limit
     )
-    return tastings
 
 
-@router.get("/whiskeys/{whiskey_id}/tastings/", response_model=List[Tasting])
-async def read_tastings_by_whiskey(
-    whiskey_id: int,
+@router.get("/whiskeys/{user_whiskey_id}/tastings/", response_model=List[Tasting])
+async def read_tastings_by_user_whiskey(
+    user_whiskey_id: int,
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> List[TastingModel]:
-    """
-    Retrieve all tastings for a specific whiskey by the current user
-    """
-    tastings = await get_tastings_by_whiskey(
-        db, whiskey_id=whiskey_id, user_id=current_user.id, skip=skip, limit=limit
+    return await get_tastings_by_user_whiskey(
+        db,
+        user_whiskey_id=user_whiskey_id,
+        user_id=current_user.id,
+        skip=skip,
+        limit=limit,
     )
-    return tastings
 
 
 @router.post("/tastings/", response_model=Tasting, status_code=status.HTTP_201_CREATED)

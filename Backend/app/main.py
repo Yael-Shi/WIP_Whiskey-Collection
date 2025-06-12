@@ -16,6 +16,7 @@ from app.models import *
 from app.routers import auth
 from app.routers import distilleries
 from app.routers import tastings
+from app.routers import user_whiskey
 from app.routers import users
 from app.routers import whiskeys
 
@@ -54,6 +55,7 @@ app.include_router(users.router, prefix="/api", tags=["Users"])
 app.include_router(whiskeys.router, prefix="/api", tags=["Whiskeys"])
 app.include_router(tastings.router, prefix="/api", tags=["Tastings"])
 app.include_router(distilleries.router, prefix="/api", tags=["Distilleries"])
+app.include_router(user_whiskey.router, prefix="/api", tags=["User Whiskey"])
 
 
 @app.get("/")

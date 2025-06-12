@@ -37,7 +37,7 @@ class User(UserBase):
         """Configure Pydantic to parse obj to JSON"""
 
         from_attributes = True
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):
