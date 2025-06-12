@@ -13,7 +13,7 @@ from app.db.database import Base
 
 if TYPE_CHECKING:
     from app.models.tasting import Tasting
-    from app.models.whiskey import Whiskey
+    from app.models.user_whiskey import UserWhiskey
 
 
 class User(Base):
@@ -33,8 +33,8 @@ class User(Base):
         DateTime(timezone=True), onupdate=func.now()
     )
 
-    whiskeys: Mapped[list["Whiskey"]] = relationship(back_populates="owner")
-    tastings: Mapped[list["Tasting"]] = relationship(back_populates="owner")
+    user_whiskeys: Mapped[list["UserWhiskey"]] = relationship(back_populates="user")
+    tastings: Mapped[list["Tasting"]] = relationship(back_populates="user")
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}')>"

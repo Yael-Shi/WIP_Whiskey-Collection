@@ -5,11 +5,8 @@ from pydantic import BaseModel
 
 
 class TastingBase(BaseModel):
-    """Base Tasting schema with common attributes"""
-
-    whiskey_id: int
-    rating: int
     tasting_date: date
+    rating: int
     color_notes: Optional[str] = None
     nose_notes: Optional[str] = None
     palate_notes: Optional[str] = None
@@ -21,16 +18,14 @@ class TastingBase(BaseModel):
 
 
 class TastingCreate(TastingBase):
-    """Schema for creating a new tasting"""
-
-    pass
+    user_whiskey_id: int
 
 
 class TastingUpdate(BaseModel):
     """Schema for updating an existing tasting"""
 
-    rating: Optional[int] = None
     tasting_date: Optional[date] = None
+    rating: Optional[int] = None
     color_notes: Optional[str] = None
     nose_notes: Optional[str] = None
     palate_notes: Optional[str] = None
@@ -46,7 +41,9 @@ class Tasting(TastingBase):
 
     id: int
     user_id: int
+    user_whiskey_id: int
     created_date: date
+    updated_date: date
 
     class Config:
         """Configure Pydantic to work with ORM"""

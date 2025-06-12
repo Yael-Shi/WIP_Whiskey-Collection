@@ -5,15 +5,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user_whiskey import UserWhiskey as UserWhiskeyModel
-from app.schemas.user_whiskey_schema import UserWhiskeyUpdate as WhiskeyUpdateSchema
-from app.schemas.whiskey_schema import WhiskeyCreate as WhiskeyCreateSchema
+from app.schemas.user_whiskey_schema import UserWhiskeyCreate as UserWhiskeyCreateSchema
+from app.schemas.user_whiskey_schema import UserWhiskeyUpdate as UserWhiskeyUpdateSchema
 
 
 async def get_user_whiskey(
     db: AsyncSession, user_whiskey_id: int, user_id: int
 ) -> Optional[UserWhiskeyModel]:
     """
-    Retrieve a single UserWhiskey record by ID, ensuring it belongs to the user.
+    Retrieve a specific UserWhiskey instance by ID, ensuring it belongs to the user.
     """
     result = await db.execute(
         select(UserWhiskeyModel)
@@ -30,7 +30,7 @@ async def get_user_whiskeys(
     db: AsyncSession, user_id: int, skip: int = 0, limit: int = 100
 ) -> List[UserWhiskeyModel]:
     """
-    Retrieve all whiskeys owned by a specific user.
+    Retrieve all UserWhiskey entries belonging to the current user.
     """
     result = await db.execute(
         select(UserWhiskeyModel)
@@ -42,50 +42,49 @@ async def get_user_whiskeys(
 
 
 async def create_user_whiskey(
-    db: AsyncSession, whiskey: WhiskeyCreateSchema, user_id: int
+    db: AsyncSession, user_id: int, user_whiskey: UserWhiskeyCreateSchema
 ) -> UserWhiskeyModel:
     """
-    Create a new UserWhiskey instance for a specific user.
+    Create a new UserWhiskey entry for the current user.
     """
-    db_whiskey = UserWhiskeyModel(**whiskey.dict(), user_id=user_id)
-    db.add(db_whiskey)
+    db_user_whiskey = UserWhiskeyModel(**user_whiskey.dict(), user_id=user_id)
+    db.add(db_user_whiskey)
     await db.flush()
-    await db.refresh(db_whiskey)
-    return db_whiskey
+    await db.refresh(db_user_whiskey)
+    return db_user_whiskey
 
 
 async def update_user_whiskey(
     db: AsyncSession,
     user_whiskey_id: int,
-    whiskey_update_data: WhiskeyUpdateSchema,
     user_id: int,
+    update_data: UserWhiskeyUpdateSchema,
 ) -> Optional[UserWhiskeyModel]:
     """
-    Update an existing UserWhiskey record.
+    Update an existing UserWhiskey entry.
     """
-    db_whiskey = await get_user_whiskey(db, user_whiskey_id, user_id)
-    if not db_whiskey:
-        return None  # Or raise HTTPException
+    db_user_whiskey = await get_user_whiskey(db, user_whiskey_id, user_id)
+    if not db_user_whiskey:
+        return None
 
-    update_data = whiskey_update_data.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_whiskey, key, value)
+    for key, value in update_data.dict(exclude_unset=True).items():
+        setattr(db_user_whiskey, key, value)
 
     await db.flush()
-    await db.refresh(db_whiskey)
-    return db_whiskey
+    await db.refresh(db_user_whiskey)
+    return db_user_whiskey
 
 
 async def delete_user_whiskey(
     db: AsyncSession, user_whiskey_id: int, user_id: int
 ) -> Optional[UserWhiskeyModel]:
     """
-    Delete a UserWhiskey record.
+    Delete a specific UserWhiskey instance.
     """
-    db_whiskey = await get_user_whiskey(db, user_whiskey_id, user_id)
-    if not db_whiskey:
-        return None  # Or raise HTTPException
+    db_user_whiskey = await get_user_whiskey(db, user_whiskey_id, user_id)
+    if not db_user_whiskey:
+        return None
 
-    await db.delete(db_whiskey)
+    await db.delete(db_user_whiskey)
     await db.flush()
-    return db_whiskey
+    return db_user_whiskey

@@ -17,8 +17,9 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 if TYPE_CHECKING:
+    from app.models.distillery import Distillery
     from app.models.tasting import Tasting
-    from app.models.user import User
+    from app.models.user_whiskey import UserWhiskey
 
 
 class Whiskey(Base):
@@ -26,7 +27,9 @@ class Whiskey(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, index=True, nullable=False)
-    distillery: Mapped[str | None] = mapped_column(String, nullable=True)
+    distillery_id: Mapped[int | None] = mapped_column(
+        ForeignKey("distilleries.id"), nullable=True
+    )
     region: Mapped[str | None] = mapped_column(String, nullable=True)
     age: Mapped[int | None] = mapped_column(Integer, nullable=True)
     type: Mapped[str | None] = mapped_column(
@@ -41,12 +44,11 @@ class Whiskey(Base):
     image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_favorite: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-
-    owner: Mapped["User"] = relationship(back_populates="whiskeys")
     tastings: Mapped[list["Tasting"]] = relationship(
-        back_populates="whiskey_info", cascade="all, delete-orphan"
+        back_populates="whiskey", cascade="all, delete-orphan"
     )
+    distillery_info: Mapped["Distillery"] = relationship(back_populates="whiskeys")
+    user_whiskeys: Mapped[list["UserWhiskey"]] = relationship(back_populates="whiskey")
 
     created_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

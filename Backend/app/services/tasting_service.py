@@ -42,20 +42,20 @@ async def get_tastings_by_user(
     return list(result.scalars().all())
 
 
-async def get_tastings_by_whiskey(
+async def get_tastings_by_user_whiskey(
     db: AsyncSession,
-    whiskey_id: int,
+    user_whiskey_id: int,
     user_id: int,
     skip: int = 0,
     limit: int = 100,
 ) -> List[TastingModel]:
     """
-    Retrieve tastings for a specific whiskey and user.
+    Retrieve tastings for a specific user_whiskey and user.
     """
     result = await db.execute(
         select(TastingModel)
         .where(
-            TastingModel.whiskey_id == whiskey_id,
+            TastingModel.user_whiskey_id == user_whiskey_id,
             TastingModel.user_id == user_id,
         )
         .offset(skip)
@@ -69,7 +69,7 @@ async def create_tasting(
 ) -> TastingModel:
     """
     Create a new tasting for a specific user.
-    The whiskey_id is part of the TastingCreateSchema.
+    The user_whiskey_id is part of the TastingCreateSchema.
     """
     db_tasting = TastingModel(**tasting.dict(), user_id=user_id)
     db.add(db_tasting)
